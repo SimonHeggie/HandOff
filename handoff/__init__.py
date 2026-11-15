@@ -693,6 +693,8 @@ class AdditionalExport(PropertyGroup):
         ('ZIP', 'ZIP', 'Lossless ZIP compression'),
         ('ZIP_WITH_PREDICTION', 'ZIP with Prediction', 'Lossless ZIP with sample prediction'),
         ('RAW', 'Uncompressed', 'Store full uncompressed pixel channels')])
+    trim_empty_pixels: BoolProperty(name='Trim Whitespace', default=True,
+        description='OCA frames and SVG raster fallbacks: crop only all-zero RGBA borders, retaining hidden RGB and the original document positions. No change to editable SVG paths')
     flatten: BoolProperty(name='Flatten Image', default=False,
         description='Flatten layers into one image; disables group hierarchy where the format supports flattening')
     use_groups: BoolProperty(name='Use Groups', default=False,
@@ -994,6 +996,7 @@ def prepare(scene):
                     'overwrite': True,
                     'save_as_render': bool(item.save_as_render),
                     'bake_svg_png': bool(item.bake_svg_png),
+                    'trim_empty_pixels': bool(item.trim_empty_pixels),
                     'svg_flat_text_material': bool(item.svg_flat_text_material),
                     'svg_editable_layer_blends': True,
                     'font_directory': bpy.path.abspath(item.font_directory),
@@ -1470,6 +1473,7 @@ def refresh_cached_jobs(scene, data):
         job['overwrite'] = True
         job['save_as_render'] = bool(current.save_as_render)
         job['bake_svg_png'] = bool(current.bake_svg_png)
+        job['trim_empty_pixels'] = bool(current.trim_empty_pixels)
         job['svg_flat_text_material'] = bool(current.svg_flat_text_material)
         job['svg_editable_layer_blends'] = True
         job['font_directory'] = bpy.path.abspath(current.font_directory)
@@ -1957,6 +1961,8 @@ class PanelNode(Panel):
                 fonts.prop(item,'font_directory')
             if item.format == 'FONTS':
                 continue
+            if item.format in ('OCA', 'SVG'):
+                formatbox.prop(item, 'trim_empty_pixels', text='Trim Whitespace')
             if item.format == 'SVG':
                 bake_row = formatbox.row(align=True)
                 bake_row.enabled = not item.flatten

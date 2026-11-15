@@ -582,7 +582,7 @@ def make_oca_layer(parts, mode, path_relative, width, height, depth, frame, idx,
         'name': parts[-1], 'id': identifier, 'type': 'paintlayer',
         'animated': False, 'fileType': 'exr' if depth == 32 else 'png',
         'frames': [{
-            'name': safe_component(parts[-1]) + '_' + str(frame),
+            'name': safe_component(parts[-1]) + '_' + str(frame).zfill(5),
             'id': str(uuid.uuid5(uuid.NAMESPACE_URL, identifier + ':' + str(frame))),
             'fileName': path_relative, 'frameNumber': frame,
             'opacity': 1.0, 'position': [width // 2, height // 2],
@@ -644,8 +644,8 @@ def assemble_oca(job, inputs):
         leaf_counter = 0
         def add_oca_children(branch, dest_list, current_folder=(), parent_blend=None):
             nonlocal leaf_counter
-            # OCA was previously stored bottom -> top. Retain that convention
-            # while ensuring contiguous groups are not merged across gaps.
+            # OCA layer arrays are bottom-to-top, including group children.
+            # Reversed stack traversal preserves the authored paint order.
             for child in reversed(branch['children']):
                 if child['kind'] == 'group':
                     path = current_folder + (child['name'],)
@@ -668,14 +668,21 @@ def assemble_oca(job, inputs):
                 entry, source = item['entry'], item['source']
                 name_base = child['name']
                 leaf_counter += 1
-                # Stable image name without unwanted frame-style group indices.
-                candidate = '/'.join([
-                    *[safe_component(x) for x in current_folder],
-                    f'{leaf_counter:04d}_{safe_component(name_base)}_{str(frame).zfill(5)}{ext}',
-                ])
-                if candidate in path_taken:
-                    raise RuntimeError('Duplicate OCA path ' + candidate)
-                path_taken.add(candidate)
+                # OCA's JSON arrays own layer order. Only the temporal frame
+                # number belongs in the filename. Disambiguate genuinely
+                # colliding names, including case-insensitive file systems.
+                folder = [safe_component(x) for x in current_folder]
+                stem = safe_component(name_base)
+                number = str(frame).zfill(5)
+                duplicate = 1
+                while True:
+                    label = stem if duplicate == 1 else f'{stem}-{duplicate}'
+                    candidate = '/'.join([*folder, f'{label}_{number}{ext}'])
+                    key = candidate.casefold()
+                    if key not in path_taken:
+                        path_taken.add(key)
+                        break
+                    duplicate += 1
                 target = staging / candidate
                 target.parent.mkdir(parents=True, exist_ok=True)
                 if item.get('pixels') is not None:
@@ -686,6 +693,21 @@ def assemble_oca(job, inputs):
                         write_blender_image(target, pixels, depth)
                 else:
                     shutil.copyfile(source, target)
+                # Keep the OCA canvas/layer size intact. Frames can have
+                # independent cropped bounds and centered positions.
+                left = top = 0
+                cropped_width, cropped_height = width, height
+                if job.get('trim_empty_pixels', True):
+                    if depth in (8, 16):
+                        from raster_trim import crop_png_file
+                        left, top, cropped_width, cropped_height = crop_png_file(target)
+                    else:
+                        from raster_bounds import crop_rgba
+                        pixels = read_rgba(target)
+                        clipped, left, top = crop_rgba(pixels)
+                        cropped_height, cropped_width = clipped.shape[:2]
+                        if (left, top, cropped_width, cropped_height) != (0, 0, width, height):
+                            write_blender_image(target, clipped, depth)
                 rel = (Path(name) / candidate).as_posix()
                 parts = [*current_folder, name_base]
                 is_ref = bool(item.get('flags', set()) & {'ref', 'reference'})
@@ -693,6 +715,9 @@ def assemble_oca(job, inputs):
                     notice(job, entry['name'] + ': disabled for rendering; hidden blank OCA placeholder created')
                 layer = make_oca_layer(parts, effective_layer_mode(item, parent_blend), rel,
                                        width, height, depth, frame, leaf_counter, reference=is_ref)
+                cel = layer['frames'][0]
+                cel['position'] = [left + cropped_width / 2, top + cropped_height / 2]
+                cel['width'], cel['height'] = cropped_width, cropped_height
                 if entry.get('render_placeholder'):
                     layer['visible'] = False
                 dest_list.append(layer)

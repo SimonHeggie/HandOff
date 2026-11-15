@@ -266,10 +266,15 @@ def write_svg_document(job, inputs, *, logger=print):
             else:
                 src = item.get('source')
                 data = _png_bytes_for(item, src, width, height)
+                image_x = image_y = 0
+                image_width, image_height = width, height
+                if job.get('trim_empty_pixels', True):
+                    from raster_trim import crop_png_bytes
+                    data, image_x, image_y, image_width, image_height = crop_png_bytes(data)
                 image = ET.SubElement(layer, _tag('image'), {
                     'id':'handoff-image-' + str(counters['layers'] - 1),
-                    _ink('label'):label, 'x':'0', 'y':'0', 'width':str(width),
-                    'height':str(height), 'preserveAspectRatio':'none',
+                    _ink('label'):label, 'x':str(image_x), 'y':str(image_y),
+                    'width':str(image_width), 'height':str(image_height), 'preserveAspectRatio':'none',
                     'href':'data:image/png;base64,' + base64.b64encode(data).decode('ascii')})
                 for key,value in layer.attrib.items():
                     if key.startswith('data-asset-'):image.set(key,value)

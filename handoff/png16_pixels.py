@@ -11,8 +11,11 @@ from pathlib import Path
 
 
 def read_png16_rgba(path):
+    return read_png16_rgba_bytes(Path(path).read_bytes())
+
+
+def read_png16_rgba_bytes(data):
     import numpy as np
-    data = Path(path).read_bytes()
     if not data.startswith(b'\x89PNG\r\n\x1a\n'):
         raise ValueError('PNG16 reader: invalid PNG signature')
     offset = 8
@@ -88,3 +91,43 @@ def read_png16_rgba(path):
     if channels == 3:
         out = np.concatenate((out, np.ones((height,width,1), dtype=np.float32)), axis=2)
     return out
+
+
+def encode_png16_rgba(pixels, *, source=None):
+    """Encode exact normalized PNG16 RGBA samples, preserving colour tags."""
+    import numpy as np
+    import struct
+    import zlib
+
+    values = np.asarray(pixels, dtype=np.float32)
+    if values.ndim != 3 or values.shape[2] != 4 or not all(values.shape[:2]):
+        raise ValueError('PNG16 writer expects nonempty RGBA image')
+    height, width = values.shape[:2]
+    samples = np.rint(np.clip(values, 0, 1) * 65535.0).astype('>u2')
+
+    def chunk(tag, data):
+        return (struct.pack('>I', len(data)) + tag + data +
+                struct.pack('>I', zlib.crc32(tag + data) & 0xffffffff))
+
+    output = bytearray(b'\x89PNG\r\n\x1a\n')
+    output += chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, 16, 6, 0, 0, 0))
+    if source:
+        # Colour interpretation is independent of the cropped dimensions.
+        offset = 8
+        while offset + 12 <= len(source):
+            count = struct.unpack_from('>I', source, offset)[0]
+            name = source[offset+4:offset+8]
+            payload = source[offset+8:offset+8+count]
+            if name in (b'iCCP', b'sRGB', b'gAMA', b'cHRM'):
+                output += chunk(name, payload)
+            offset += count + 12
+            if name == b'IDAT':
+                break
+    compressor = zlib.compressobj(level=6)
+    compressed = bytearray()
+    for row in samples:
+        compressed.extend(compressor.compress(b'\x00' + row.tobytes()))
+    compressed.extend(compressor.flush())
+    output += chunk(b'IDAT', bytes(compressed))
+    output += chunk(b'IEND', b'')
+    return bytes(output)
