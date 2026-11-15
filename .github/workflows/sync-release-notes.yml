@@ -1,25 +1,34 @@
-name: Sync documentation to existing alpha release
+name: Sync notes for existing alpha releases
 
 on:
   push:
     branches: [main]
     paths:
+      - "docs/FIRST_RELEASE_NOTES.md"
       - "docs/RELEASE_NOTES_v0.7.51-alpha.1.md"
+      - ".github/workflows/sync-release-notes.yml"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  sync-release-body:
+  sync-release-bodies:
     if: github.repository == 'SimonHeggie/HandOff'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout documentation
         uses: actions/checkout@v4
-      - name: Update notes on existing release only
+      - name: Update notes and titles on existing releases
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
+          gh release view v0.7.50-alpha.1 >/dev/null
           gh release view v0.7.51-alpha.1 >/dev/null
-          gh release edit v0.7.51-alpha.1 --notes-file docs/RELEASE_NOTES_v0.7.51-alpha.1.md
+          gh release edit v0.7.50-alpha.1 \
+            --title "HandOff v0.7.50 Alpha 1 - Initial Release (Comp-IO build)" \
+            --notes-file docs/FIRST_RELEASE_NOTES.md
+          gh release edit v0.7.51-alpha.1 \
+            --title "HandOff v0.7.51 Alpha 1 - Naming and Compatibility Update" \
+            --notes-file docs/RELEASE_NOTES_v0.7.51-alpha.1.md
