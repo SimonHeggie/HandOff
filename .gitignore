@@ -1,13 +1,29 @@
-# Python
+# Local Python / editor debris
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+*.egg-info/
 
-# Blender backups
+# Blender backups and local working files
 *.blend1
 *.blend2
+*.blend3
+*.blend@
+*.blend~
+*.blend.lock
 
-# Generated packages and OS files
+# Build and development products
+build/
+dist/
 *.zip
+*.tar.gz
+.backups/
 .DS_Store
-Thumbs.db
+*~
+
+# Pillow wheels are included in release ZIPs, not tracked in the source repo.
+blend_psd_tools/pillow/*.whl

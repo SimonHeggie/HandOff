@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<blendModeRegistry version="0.7.14" schema="oca-krita-v1" ordering="common-first">
+  <sources>
+    <source id="spine" by="Esoteric Software" title="Spine User Guide - Import PSD" url="https://us.esotericsoftware.com/spine-import-psd" classification="official"/>
+    <source id="generator" by="Adobe" title="Photoshop - Image asset generator naming syntax (2026-10-04)" url="https://helpx.adobe.com/photoshop/desktop/automate-tasks/automation-settings-and-presets/image-asset-generator-naming-syntax.html" classification="official"/>
+    <source id="oca_tags" by="Nicolas Dufresne (Duduf) / RxLaboratorio" title="OCA for Krita - Layer tags" url="https://rxlab.guide/oca-krita/layer-tags.html" classification="official"/>
+    <source id="oca_schema" by="Nicolas Dufresne (Duduf) / RxLaboratorio" title="Open Cel Animation - Layer Object specification" url="https://oca.rxlab.guide/specs/layer.html" classification="official"/>
+    <source id="oca_blends" by="Nicolas Dufresne (Duduf) / RxLaboratorio" title="Open Cel Animation - Blending Modes" url="https://oca.rxlab.guide/specs/blending-modes.html" classification="official"/>
+    <source id="krita" by="Krita contributors / KDE" title="Krita 5.3 reference manual - Blending Modes" url="https://docs.krita.org/en/reference_manual/blending_modes.html" classification="official"/>
+    <source id="photoshop_blends" by="Adobe" title="Photoshop - Blending mode descriptions" url="https://helpx.adobe.com/sg/photoshop/desktop/repair-retouch/adjust-light-tone/blending-mode-descriptions.html" classification="official"/>
+  </sources>
+  <modes>
+    <mode oca="normal" rank="001" krita="normal" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="NORMAL" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Normal" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="multiply" rank="002" krita="multiply" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="MULTIPLY" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Multiply" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="screen" rank="003" krita="screen" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="SCREEN" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Screen" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="add" rank="004" krita="add" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="ADD" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Linear Dodge (Add)" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="linear_dodge" rank="005" krita="linear_dodge" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="LINEAR_DODGE" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Linear Dodge (Add)" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="overlay" rank="006" krita="overlay" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="OVERLAY" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Overlay" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="darken" rank="007" krita="darken" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="DARKEN" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Darken" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="lighten" rank="008" krita="lighten" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="LIGHTEN" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Lighten" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="burn" rank="009" krita="burn" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="COLOR_BURN" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Color Burn" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="dodge" rank="010" krita="dodge" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="CLASSIC_COLOR_DODGE" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Color Dodge" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="soft_light" rank="011" krita="soft_light_svg" kritaEquivalence="exact-by-OCA-definition" sourceAmbiguity="Repeated Krita label in supplied OCA table; verify upstream before coding conversion">
+      <app id="after-effects" name="SOFT_LIGHT" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Soft Light" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="hard_light" rank="013" krita="hard_light" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="HARD_LIGHT" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Hard Light" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="difference" rank="014" krita="diff" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="DIFFERENCE" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Difference" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="exclusion" rank="015" krita="exclusion" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="EXCLUSION" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Exclusion" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="color" rank="016" krita="color" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="COLOR" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Color" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="luminosity" rank="017" krita="luminize" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="LUMINOSITY" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Luminosity" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="hue" rank="018" krita="hue" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="HUE" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Hue" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="saturation" rank="019" krita="saturation" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="SATURATION" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Saturation" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="divide" rank="020" krita="divide" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="DIVIDE" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Divide" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="erase" rank="021" krita="erase" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="SILHOUETE_ALPHA" status="source-marked-exact" source="oca_blends"/>
+    </mode>
+    <mode oca="inverse_subtract" rank="022" krita="inverse_subtract" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="LINEAR_BURN" status="source-marked-exact" source="oca_blends"/>
+    </mode>
+    <mode oca="subtract" rank="023" krita="subtract" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="SUBTRACT" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Subtract" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="darker_color" rank="024" krita="darker color" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="DARKER_COLOR" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Darker Color" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="easy_burn" rank="025" krita="easy burn" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="MULTIPLY" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="fog_darken" rank="026" krita="fog_darken_ifs_illusions" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="DARKEN" status="source-marked-exact" source="oca_blends"/>
+    </mode>
+    <mode oca="gamma_dark" rank="027" krita="gamma_dark" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="VIVID_LIGHT" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="linear_burn" rank="028" krita="linear_burn" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="LINEAR_BURN" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Linear Burn" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="shade" rank="029" krita="shade_ifs_illusions" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="LINEAR_BURN" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="converse" rank="030" krita="converse" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="and" rank="031" krita="and" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="LINEAR_BURN" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="implication" rank="032" krita="implication" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="nand" rank="033" krita="nand" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="nor" rank="034" krita="nor" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="not_converse" rank="035" krita="not_converse" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="not_implication" rank="036" krita="not_implication" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="or" rank="037" krita="or" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="ADD" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="xnor" rank="038" krita="xnor" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="xor" rank="039" krita="xor" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="dissolve" rank="040" krita="dissolve" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="DISSOLVE" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Dissolve" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="increase_luminosity" rank="041" krita="inc_luminosity" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="ADD" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="increase_saturation" rank="042" krita="inc_saturation" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="OVERLAY" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="decrease_luminosity" rank="043" krita="dec_luminosity" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="decrease_saturation" rank="044" krita="dec_saturation" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="divisive_modulo" rank="045" krita="divisive_modulo" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="allanon" rank="046" krita="allanon" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="alpha_darken" rank="047" krita="alphadarken" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="LUMINESCENT_PREMUL" status="source-marked-exact" source="oca_blends"/>
+    </mode>
+    <mode oca="stencil_alpha" rank="048" krita="destination-in" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="STENCIL_ALPHA" status="source-marked-exact" source="oca_blends"/>
+    </mode>
+    <mode oca="hard_overlay" rank="049" krita="hard overlay" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="VIVID_LIGHT" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="interpolation" rank="050" krita="interpolation" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="double_interpolation" rank="051" krita="interpolation 2x" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="hard_mix" rank="052" krita="hard mix" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="HARD_MIX" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="hard_mix_photoshop" rank="053" krita="hard_mix_photoshop" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="CLASSIC_COLOR_BURN" status="approximation" source="oca_blends"/>
+      <app id="photoshop" name="Hard Mix" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="parallel" rank="054" krita="parallel" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="DARKEN" status="source-marked-exact" source="oca_blends"/>
+    </mode>
+    <mode oca="penumbra_a" rank="055" krita="penumbra a" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="penumbra_b" rank="056" krita="penumbra a" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="penumbra_c" rank="057" krita="penumbra a" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="penumbra_d" rank="058" krita="penumbra a" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="greater" rank="059" krita="greater" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="geometric_mean" rank="060" krita="geometric_mean" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="MULTIPLY" status="source-marked-exact" source="oca_blends"/>
+    </mode>
+    <mode oca="additive_subtractive" rank="061" krita="additive_subtractive" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="DIFFERENCE" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="negation" rank="062" krita="negation" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="arc_tangent" rank="063" krita="arc_tangent" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="equivalence" rank="064" krita="equivalence" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="DIFFERENCE" status="source-marked-exact" source="oca_blends"/>
+    </mode>
+    <mode oca="freeze_reflect" rank="065" krita="freeze_reflect" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="OVERLAY" status="source-marked-exact" source="oca_blends"/>
+    </mode>
+    <mode oca="freeze" rank="066" krita="freeze" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="glow_heat" rank="067" krita="glow_heat" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="heat" rank="068" krita="heat" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="heat_glow" rank="069" krita="heat_glow" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="HARD_LIGHT" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="heat_glow_freeze_reflect" rank="070" krita="heat_glow_freeze_reflect_hybrid" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="glow" rank="071" krita="glow" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="reflect_freeze" rank="072" krita="reflect_freeze" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="reflect" rank="073" krita="reflect" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="increase_intensity" rank="074" krita="inc_intensity" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="increase_saturation_hsi" rank="075" krita="inc_saturation_hsi" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="color_hsi" rank="076" krita="color_hsi" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="COLOR" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="decrease_intensity" rank="077" krita="dec_intensity" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="decrease_saturation_hsi" rank="078" krita="dec_saturation_hsi" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="intensity" rank="079" krita="intensity" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="LUMINOSITY" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="saturation_hsi" rank="080" krita="saturation_hsi" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="SATURATION" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="hue_hsi" rank="081" krita="hue_hsi" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="HUE" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="increase_lightness" rank="082" krita="inc_lightness" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="increase_saturation_hsl" rank="083" krita="inc_saturation_hsl" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="color_hsl" rank="084" krita="color_hsl" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="decrease_lightness" rank="085" krita="dec_lightness" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="decrease_saturation_hsl" rank="086" krita="dec_saturation_hsl" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="lightness" rank="087" krita="lightness" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="saturation_hsl" rank="088" krita="saturation_hsl" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="hue_hsl" rank="089" krita="hue_hsl" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="increase_saturation_hsv" rank="090" krita="inc_saturation_hsv" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="increase_value" rank="091" krita="inc_value" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="color_hsv" rank="092" krita="color_hsv" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="decrease_saturation_hsv" rank="093" krita="dec_saturation_hsv" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="decrease_value" rank="094" krita="dec_value" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="saturation_hsv" rank="095" krita="saturation_hsv" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="value" rank="096" krita="value" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="lighter_color" rank="097" krita="lighter color" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="LIGHTER_COLOR" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Lighter Color" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="easy_dodge" rank="098" krita="easy dodge" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="flat_light" rank="099" krita="flat_light" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="VIVID_LIGHT" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="fog_lighten" rank="100" krita="fog_lighten_ifs_illusions" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="LIGHTEN" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="linear_light" rank="101" krita="linear light" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="LINEAR_LIGHT" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Linear Light" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="gamma_illumination" rank="102" krita="gamma_illumination" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="luminosity_sai" rank="103" krita="luminosity_sai" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="ADD" status="source-marked-exact" source="oca_blends"/>
+    </mode>
+    <mode oca="gamma_light" rank="104" krita="gamma_light" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="pin_light" rank="105" krita="pin_light" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="PIN_LIGHT" status="source-marked-exact" source="oca_blends"/>
+      <app id="photoshop" name="Pin Light" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="vivid_light" rank="106" krita="vivid_light" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="COLOR_BURN" status="approximation" source="oca_blends"/>
+      <app id="photoshop" name="Vivid Light" status="name-match-check-compositing" source="photoshop_blends"/>
+    </mode>
+    <mode oca="pnorm_a" rank="107" krita="pnorm_a" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="pnorm_b" rank="108" krita="pnorm_b" kritaEquivalence="exact-by-OCA-definition"/>
+    <mode oca="soft_light_ifs" rank="109" krita="soft_light_ifs_illusions" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="SOFT_LIGHT" status="source-marked-exact" source="oca_blends"/>
+    </mode>
+    <mode oca="soft_light_pegtop_delphi" rank="110" krita="soft_light_pegtop_delphi" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="SOFT_LIGHT" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="super_light" rank="111" krita="super_light" kritaEquivalence="exact-by-OCA-definition">
+      <app id="after-effects" name="PIN_LIGHT" status="approximation" source="oca_blends"/>
+    </mode>
+    <mode oca="tint" rank="112" krita="tint_ifs_illusions" kritaEquivalence="exact-by-OCA-definition"/>
+  </modes>
+</blendModeRegistry>

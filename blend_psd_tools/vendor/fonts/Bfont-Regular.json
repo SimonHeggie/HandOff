@@ -1,0 +1,15 @@
+{
+  "source_sha256": "a33954fdab9fb09b9d308cb7f970518293128922ffc523c0a22b3b314a9a56c6",
+  "otf_sha256": "23fa91dbb3796e04377ef36ec2900de0bf28f78e62c686b2c1988da9d4000099",
+  "glyphs": 229,
+  "unicode_entries": 228,
+  "bbox": [
+    -162,
+    -230,
+    1041,
+    911
+  ],
+  "source": "https://github.com/blender/blender/blob/main/release/datafiles/bfont.pfb",
+  "conversion": "Type 1 to OpenType/CFF; all glyph outlines and advance widths verified exactly",
+  "runtime_dependency": "none"
+}
