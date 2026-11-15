@@ -96,6 +96,61 @@ class OCASequence(unittest.TestCase):
                 restored[y:y+2,x:x+2]=patch
                 np.testing.assert_array_equal(restored,images[idx])
 
+    def test_sequence_uses_current_trim_setting_not_stale_frame_snapshot(self):
+        """Retried/current OCA options must override captured frame-job settings."""
+        import numpy as np
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            cache = root / 'cache'
+            cache.mkdir()
+            frames = []
+            for frame in (0, 1):
+                pixels = np.zeros((8, 10, 4), dtype=np.uint8)
+                pixels[2:4, 5:7] = [180, 80 + frame, 45, 255]
+                Image.fromarray(pixels, 'RGBA').save(cache / f'Part_{frame:05d}.png')
+                frames.append(dict(format='OCA', frame=frame, cache_frame=frame,
+                    dir=str(cache), extension='.png', depth=8, hierarchy='FLAT',
+                    overwrite=True, trim_empty_pixels=False, frame_rate=12,
+                    manifest=[dict(name='Arm', slug='Part_')]))
+            # The final settings were refreshed (e.g. by Retry), but the
+            # per-frame snapshots still carry the earlier false value.
+            job = dict(frames[-1], dest=str(root / 'Sequence.oca'),
+                trim_empty_pixels=True, oca_frames=frames, oca_range=[0, 1, 1])
+            assemble(job)
+            doc = json.loads((root / 'Sequence.oca').read_text())
+            cels = doc['layers'][0]['frames']
+            self.assertEqual([(c['width'], c['height'], c['position']) for c in cels],
+                             [(2, 2, [6, 3]), (2, 2, [6, 3])])
+            for cel in cels:
+                with Image.open(root / cel['fileName']) as img:
+                    self.assertEqual(img.size, (2, 2))
+
+    def test_sequence_respects_current_trim_off_even_if_frames_had_it_on(self):
+        import numpy as np
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            cache = root / 'cache'
+            cache.mkdir()
+            frames = []
+            for frame in (0, 1):
+                pixels = np.zeros((8, 10, 4), dtype=np.uint8)
+                pixels[2:4, 5:7] = [180, 80 + frame, 45, 255]
+                Image.fromarray(pixels, 'RGBA').save(cache / f'Part_{frame:05d}.png')
+                frames.append(dict(format='OCA', frame=frame, cache_frame=frame,
+                    dir=str(cache), extension='.png', depth=8, hierarchy='FLAT',
+                    overwrite=True, trim_empty_pixels=True, frame_rate=12,
+                    manifest=[dict(name='Arm', slug='Part_')]))
+            job = dict(frames[-1], dest=str(root / 'Sequence.oca'),
+                trim_empty_pixels=False, oca_frames=frames, oca_range=[0, 1, 1])
+            assemble(job)
+            doc = json.loads((root / 'Sequence.oca').read_text())
+            cels = doc['layers'][0]['frames']
+            self.assertEqual([(c['width'], c['height']) for c in cels],
+                             [(10, 8), (10, 8)])
+            for cel in cels:
+                with Image.open(root / cel['fileName']) as img:
+                    self.assertEqual(img.size, (10, 8))
+
     def test_trim_can_be_disabled(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);cache=root/'cache';cache.mkdir()

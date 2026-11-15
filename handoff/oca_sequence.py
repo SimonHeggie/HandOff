@@ -26,7 +26,13 @@ def assemble_oca_sequence(job, assemble_frame):
         for i,frame_job in enumerate(frames):
             # Reuse cache resolution, directives, flattening, blend promotion,
             # precision and hierarchy. Temporary documents are standard OCA.
-            frame_job=dict(frame_job,dest=str(work/'frame'/dest.name),overwrite=True)
+            # Cached frames own their pixels, frame number and per-frame paths,
+            # but the current destination owns export options. In particular,
+            # Retry Export can refresh Trim Whitespace on the parent job while
+            # earlier captured frame snapshots retain the former value.
+            frame_job=dict(frame_job,dest=str(work/'frame'/dest.name),overwrite=True,
+                           trim_empty_pixels=job.get('trim_empty_pixels',
+                                                     frame_job.get('trim_empty_pixels', True)))
             frame_job.pop('oca_frames',None);frame_job.pop('oca_range',None)
             path=Path(assemble_frame(frame_job))
             current=json.loads(path.read_text(encoding='utf-8'))
