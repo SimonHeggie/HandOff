@@ -1,66 +1,20 @@
 # HandOff v0.7.50 Alpha 1 — Initial Release
 
-**Initial repository release of the layered asset exporter for Blender**, developed under the Comp-IO name. This package ships as the `blend_psd_tools` add-on and includes the existing functionality accumulated through version 0.7.50.
+The initial release of the Blender add-on originally developed as **Comp-IO**. It adds independent export destinations to the compositor's **File Output** node, allowing one render to produce several deliverables. File Output inputs set layer order; Blender Collections supply groups.
 
-**Designed and maintained by Simon Heggie.**
+## Features
 
-## Included in this release
+- **PSD / PSB:** Layered artwork with Collection-based groups, colour labels, supported blend modes, and editable Grease Pencil, Curve or Text elements where compatible.
+- **OCA:** Layered stills with **F12** and animated frame sequences with **Ctrl+F12**, including frame timing, exposure holds and relative image assets.
+- **SVG:** Layered vectors from supported Grease Pencil, 2D Curves and Text, with rendered fallbacks for unsupported effects.
+- **Image and font delivery:** PNG, TIFF, JPEG, OpenEXR (including layered options), referenced fonts and a `.fonts.json` manifest.
+- **Layer controls:** `.merge`, `.ungroup`, `.ignore`, `.ref` and blend-mode directives, plus naming conventions for Spine PSD, Photoshop Generator and OCA/Krita.
+- **Production tools:** **Check Export Status**, **Retry Export (No Render)** using retained artwork, **Clear Cache**, and an offline user manual.
 
-### One render, multiple deliverables
+## Install
 
-- Extends Blender's native **Compositor > File Output** node with independent **Additional Outputs**. Each connected input becomes a document layer; socket order sets the paint-layer stack.
-- Adds **PSD, PSB, OCA, SVG, PNG, TIFF, JPEG, OpenEXR and font-asset** destinations alongside Blender's ordinary File Output.
-- Supports multiple output destinations from the same rendered source, with per-output paths and options.
+Download **`HandOff-v0.7.50-alpha.1-blender-addon.zip`** from this release's assets (not GitHub's source ZIP). Install it through **Blender > Edit > Preferences > Add-ons > Install from Disk**. This original build installs as **`blend_psd_tools`** and declares **Blender 5.0+**. Its included Pillow wheels target supported **CPython 3.13** platforms.
 
-### Layered PSD and PSB artwork
+This is an **alpha** release. Verify exported files in their target applications; 32-bit PSD/PSB support is experimental.
 
-- Exports layered Photoshop-format documents with **Blender Collection-based groups**, paint layers, source layer order and supported layer/group blend modes.
-- Converts **Collection colour tags** into supported PSD/PSB layer and group colour labels.
-- Carries appropriate colour profiles where supported: sRGB for display-referred 8/16-bit images and linear Rec.709 for ordinary scene-linear 32-bit material. **32-bit PSD/PSB support is experimental.**
-- Preserves supported editable **Grease Pencil, Curve and Text** artwork using native shape/path/text representations where feasible, with rendered previews and separately linked SVG artwork for supported fallback cases.
-
-### Open Cel Animation (OCA)
-
-- Writes **layered OCA documents** using the same Collection hierarchy and export directives.
-- **Render Image (F12)** produces a still OCA document.
-- **Render Animation (Ctrl+F12)** assembles the selected rendered range into **one animated OCA document**, with frame arrays, relative image assets, frame rate and exposure durations. Blender Frame Step is represented by exposure holds.
-- Publishes frame assets with the document, suitable for moving the OCA document and its associated image directory together.
-
-### SVG and editable vector artwork
-
-- Exports layered **SVG** with supported editable Grease Pencil strokes and fills, closed 2D Curve paths and Text objects.
-- Includes applicable evaluated vector geometry, path handles, stroke widths, some gradients, and shared Grease Pencil artwork relationships.
-- Provides pixel/image representations for geometry or effects outside the supported vector conversion subset, with export diagnostics for relevant approximations.
-
-### Production images, EXR and fonts
-
-- Provides **PNG, TIFF and JPEG** outputs for individual layers or a flattened image, with format-appropriate channel/depth options.
-- Provides additional **OpenEXR** outputs, including layered workflows.
-- Collects recoverable referenced fonts and writes a **`.fonts.json` manifest** relating font assets to the original text objects.
-
-### Layer organisation and export directives
-
-- Reconstructs grouped documents using Blender **Collection ancestry** while respecting File Output input order, including separated group instances where artwork interleaves.
-- Supports document directives such as **`.merge`**, **`.ungroup`**, **`.ignore`**, **`.ref`** and recognised blend-mode suffixes including **`.multiply`** and **`.add`**.
-- Provides naming/tag compatibility options for **Spine PSD**, **Photoshop Generator** and **OCA / Krita** conventions. These target the artwork and layer organisation used by those workflows.
-
-### Inspection, retry and documentation
-
-- **Check Export Status** previews source attribution, hierarchy and tag compatibility, with detailed terminal diagnostics.
-- **Retry Export (No Render)** can republish compatible cached artwork after changes to supported output settings, names and tags.
-- **Clear Cache** manages retained jobs while protecting active jobs and delivered files.
-- Includes the offline HTML user manual, layer-tag reference, blend-mode reference, and format/feature compatibility data.
-
-## Installation
-
-1. Download **`HandOff-v0.7.50-alpha.1-blender-addon.zip`** from the Assets section of this release, rather than GitHub's autogenerated source archive.
-2. In Blender, use **Edit > Preferences > Add-ons > Install from Disk** and enable the installed add-on, then select a compositor **File Output** node.
-3. Find **Additional Outputs** under the node's sidebar panel and configure your destinations.
-
-This release's installable archive contains the **`blend_psd_tools/`** Python add-on package and six pinned, SHA-256-verified **Pillow 12.0.0** wheels for supported **CPython 3.13** platforms. The add-on declares **Blender 5.0+** as its minimum supported version in `bl_info`; specific Blender/platform combinations should be tested for production use.
-
-For the detailed documentation, see the [HandOff user manual](https://github.com/SimonHeggie/HandOff/wiki) and the [preserved development history](https://github.com/SimonHeggie/HandOff/blob/main/docs/DEVELOPMENT_HISTORY.md).
-
-## Source and attribution
-
-The GitHub repository includes the initial source baseline, development tests and supporting documentation. The vendored `psd_tools` library retains its MIT licence notice. The entire project has not been assigned a separate project-wide licence.
+[User manual](https://github.com/SimonHeggie/HandOff/wiki) · [Development history](https://github.com/SimonHeggie/HandOff/blob/main/docs/DEVELOPMENT_HISTORY.md)
