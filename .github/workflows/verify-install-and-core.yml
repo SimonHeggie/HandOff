@@ -30,13 +30,6 @@ jobs:
           python-version: '3.13'
       - name: Install test dependencies
         run: python -m pip install --disable-pip-version-check numpy pillow==12.0.0 attrs scipy
-      - name: Run core OCA, PSD, SVG and Pillow regression tests
-        env:
-          PYTHONPATH: handoff:handoff/vendor
-        run: |
-          python -m unittest -q \
-            test_pillow_loader test_oca_sequence test_color_management \
-            test_handoff_hierarchy test_svg_export
       - name: Download only hash-verified Pillow distribution wheels
         run: |
           python - <<'PY'
@@ -61,6 +54,17 @@ jobs:
                   raise RuntimeError(f'Wheel download corrupted: {filename}')
               (target/filename).write_bytes(data)
           PY
+      - name: Stage verified wheels in the source package for Blender-free writer tests
+        run: |
+          mkdir -p handoff/pillow
+          cp .release-wheels/*.whl handoff/pillow/
+      - name: Run core OCA, PSD, SVG and Pillow regression tests
+        env:
+          PYTHONPATH: handoff:handoff/vendor
+        run: |
+          python -m unittest -q \
+            test_pillow_loader test_oca_sequence test_color_management \
+            test_handoff_hierarchy test_svg_export
       - name: Rebuild installable add-on ZIP
         run: |
           python scripts/build_install_zip.py --wheels-from .release-wheels \
