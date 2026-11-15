@@ -2,6 +2,8 @@
 
 **Hit render, go home.**
 
+NOTICE: This is currently experimental software!!! Not yet full production tested. But please feel free to test, report bugs and suggest features.
+
 **Layered asset interchange and publishing for Blender.** HandOff extends Blender's **Compositor > File Output** node with additional export destinations. From the same render, it can assemble layered artwork, editable vector documents, frame-based OCA animation and other deliverables while retaining Blender's ordinary File Output functionality.
 
 Created and maintained by **Simon Heggie**. **Current release: [v0.7.51 Alpha 1](https://github.com/SimonHeggie/HandOff/releases/tag/v0.7.51-alpha.1)**. This is alpha software; inspect its output before production delivery.
