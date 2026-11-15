@@ -1,8 +1,8 @@
-# Handoff
+# HandOff
 
 **Hit render, go home.**
 
-Handoff is a Blender add-on in active development for preparing and delivering editable artwork and production assets. The current imported source is **Comp-IO v0.7.50 Alpha**, which retains its original `blend_psd_tools` Python package name and existing UI branding. This repository import does not rename or change its runtime behaviour.
+HandOff is a Blender add-on in active development for preparing and delivering editable artwork and production assets. The current development tree is **HandOff v0.7.51 Alpha**. It is now installed as the `handoff` Python package; the original v0.7.50 release remains available as a historical baseline. See [rename and migration guidance](docs/RENAME_MIGRATION.md).
 
 ## Product scope
 
@@ -20,7 +20,7 @@ External rig interchange work (including OCO, Rive, and Spine-specific rig forma
 
 ## Installation and source tree
 
-The Blender add-on package is `blend_psd_tools/`. See [its existing README](blend_psd_tools/README.md) for current Comp-IO functionality and installation guidance.
+The Blender add-on package is `handoff/`. See [its existing README](handoff/README.md) for the currently implemented functionality and installation guidance.
 
 The **source repository intentionally excludes six bundled Pillow wheel binaries** to avoid keeping approximately 33 MB of platform-specific third-party binaries in Git history. This checkout is therefore **not** the complete offline installation package. The ready-to-install ZIP is assembled with the bundled wheels; see [dependency inventory](docs/PILLOW_WHEELS.md) and `scripts/build_install_zip.py`.
 
@@ -28,4 +28,4 @@ Tests recovered from the original development archive are retained in the reposi
 
 ## Licensing
 
-The vendored `psd_tools` source retains its upstream [MIT licence notice](blend_psd_tools/PSD_TOOLS_LICENSE.txt). A project-wide licence has **not yet been selected or added**; do not assume that the third-party licence applies to the entire add-on.
+The vendored `psd_tools` source retains its upstream [MIT licence notice](handoff/PSD_TOOLS_LICENSE.txt). A project-wide licence has **not yet been selected or added**; do not assume that the third-party licence applies to the entire add-on.

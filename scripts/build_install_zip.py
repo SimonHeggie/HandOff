@@ -5,7 +5,7 @@ import argparse, hashlib, json, zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ADDON = ROOT / 'blend_psd_tools'
+ADDON = ROOT / 'handoff'
 WHEEL_MANIFEST = ROOT / 'docs' / 'pillow-wheels.json'
 
 
@@ -32,13 +32,13 @@ def build(wheel_dir: Path, output: Path) -> None:
             archive.write(path, rel.as_posix())
         for row in wheel_files:
             path = wheel_dir / row['filename']
-            archive.write(path, 'blend_psd_tools/pillow/' + path.name)
+            archive.write(path, 'handoff/pillow/' + path.name)
     print(output)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--wheels-from', required=True, type=Path)
-    parser.add_argument('--output', default=ROOT / 'dist' / 'blend_psd_tools_install.zip', type=Path)
+    parser.add_argument('--output', default=ROOT / 'dist' / 'HandOff_install.zip', type=Path)
     opts = parser.parse_args()
     build(opts.wheels_from, opts.output)

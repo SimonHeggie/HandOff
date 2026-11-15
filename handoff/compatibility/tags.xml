@@ -1,0 +1,285 @@
+<?xml version='1.0' encoding='utf-8'?>
+<tagRegistry version="0.7.14" schema="explicit-tag-mapping-v1" ordering="common-workflow-first">
+  <profiles>
+    <profile id="spine" label="Spine Import PSD" notes="PSD import directives in square brackets; scope matters." />
+    <profile id="generator" label="Photoshop Image Asset Generator" notes="A layer/group asset name is a filename expression, often with scaling or multiple assets." />
+    <profile id="oca" label="OCA for Krita / OCA" notes="On layered PSD: Krita OCA exporter name tags; on native OCA: JSON metadata, no special layer name." />
+    <profile id="passthrough" label="No conversion (manual)" notes="Keep all original names and directives verbatim; warnings may still appear." />
+    <profile id="blender" label="Blender authoring tags" notes="Internal dot-tags; not part of any vendor syntax." />
+  </profiles>
+  <sources>
+    <source id="spine" by="Esoteric Software" title="Spine User Guide - Import PSD" url="https://us.esotericsoftware.com/spine-import-psd" classification="official" />
+    <source id="generator" by="Adobe" title="Photoshop - Image asset generator naming syntax (2026-10-04)" url="https://helpx.adobe.com/photoshop/desktop/automate-tasks/automation-settings-and-presets/image-asset-generator-naming-syntax.html" classification="official" />
+    <source id="oca_tags" by="Nicolas Dufresne (Duduf) / RxLaboratorio" title="OCA for Krita - Layer tags" url="https://rxlab.guide/oca-krita/layer-tags.html" classification="official" />
+    <source id="oca_schema" by="Nicolas Dufresne (Duduf) / RxLaboratorio" title="Open Cel Animation - Layer Object specification" url="https://oca.rxlab.guide/specs/layer.html" classification="official" />
+    <source id="oca_blends" by="Nicolas Dufresne (Duduf) / RxLaboratorio" title="Open Cel Animation - Blending Modes" url="https://oca.rxlab.guide/specs/blending-modes.html" classification="official" />
+    <source id="krita" by="Krita contributors / KDE" title="Krita 5.3 reference manual - Blending Modes" url="https://docs.krita.org/en/reference_manual/blending_modes.html" classification="official" />
+    <source id="photoshop_blends" by="Adobe" title="Photoshop - Blending mode descriptions" url="https://helpx.adobe.com/sg/photoshop/desktop/repair-retouch/adjust-light-tone/blending-mode-descriptions.html" classification="official" />
+    <source id="openexr" by="Academy Software Foundation / OpenEXR" title="Technical Introduction to OpenEXR" url="https://openexr.com/en/latest/TechnicalIntroduction.html" classification="official" />
+    <source id="openexr_deep" by="Academy Software Foundation / OpenEXR" title="Deep Image Channels and Layer Names" url="https://openexr.com/en/latest/InterpretingDeepPixels.html" classification="official" />
+    <source id="openexr_multiview" by="Academy Software Foundation / OpenEXR" title="Storing Multi-View Images" url="https://openexr.com/en/rb-3.1/MultiViewOpenEXR.html" classification="official" />
+    <source id="blender_passes" by="Blender Foundation" title="Render Passes Reference" url="https://docs.blender.org/manual/en/dev/render/layers/passes.html" classification="official" />
+    <source id="cryptomatte" by="Psyop / Cryptomatte contributors" title="Cryptomatte Specification" url="https://github.com/Psyop/Cryptomatte" classification="official" />
+  </sources>
+  <behaviors>
+    <behavior id="exclude" rank="1" label="Ignore / omit on export" scope="layer,group" description="Do not include a layer or group in the target export.">
+      <target profile="spine" equivalence="native" syntax="[ignore]" representation="layer-name" note="Spine import ignores target and descendants." emit="[ignore]" />
+      <target profile="generator" equivalence="none" syntax="" representation="none" note="Generator has no standalone ignore directive. An ordinary layer name without asset filename will not itself trigger an asset." />
+      <target profile="oca" equivalence="native" syntax="_ignore_" representation="Krita layer-name / OCA writer" note="Krita exporter excludes the layer; native OCA writer omits it." emit="_ignore_" />
+      <authoring syntax=".ignore" note="HandOff directive. Exclude this layer or Collection subtree from additional artwork exports." />
+      <caution>Spine [ignore] can preserve a visible PSD reference, whereas excluding a layer from the PSD removes it completely.</caution>
+    </behavior>
+    <behavior id="reference" rank="2" label="Reference / guide artwork" scope="layer,group" description="Keep for the artist but mark non-rendering/non-exporting downstream.">
+      <target profile="spine" equivalence="approximation" syntax="[ignore]" representation="layer-name + metadata" note="Spine has no reference tag; [ignore] stops importer from creating an attachment." emit="[ignore]" />
+      <target profile="generator" equivalence="none" syntax="" representation="none" note="No Generator reference directive; keep a normal hidden layer without a Generator filename." />
+      <target profile="oca" equivalence="native" syntax="_reference_" representation="Krita layer-name / OCA JSON" note="Krita OCA exporter marks a reference; native OCA layer.reference=true." emit="_reference_" />
+      <authoring syntax=".ref" note="HandOff directive. Keep as a hidden reference in PSD or mark reference artwork in OCA." />
+      <caution>Reference artwork can remain available as a guide. Spine [ignore] omits it on import, while OCA marks it as reference content.</caution>
+    </behavior>
+    <behavior id="merge" rank="3" label="Merge a group into one paint layer" scope="group,layer" description="HandOff rasterizes a tagged Blender Collection into one PSD/OCA pixel layer. Its name comes from the group, with .merge removed. Multiple child render layers are composited in their stack order.">
+      <target profile="spine" equivalence="partial" syntax="[merge]" representation="group-name" note="Spine [merge] asks its importer to flatten an existing PSD group. HandOff .merge is applied during PSD creation, resulting in one paint layer." emit="[merge]" />
+      <target profile="generator" equivalence="approximation" syntax="" representation="group asset filename" note="Generator flattens a group only into a generated asset file; it does not change the PSD layer hierarchy." />
+      <target profile="oca" equivalence="native" syntax="_merge_" representation="Krita layer-name / OCA preprocessing" note="Krita OCA export can flatten tagged groups. HandOff writes already merged pixels in native OCA." emit="_merge_" />
+      <authoring syntax=".merge" note="HandOff directive on a Blender Collection. Rasterizes its contents into one paint layer in PSD/PSB and OCA. On an individual output layer it only removes the directive from the displayed name." />
+      <caution>HandOff merges cached pixels without changing Blender geometry. Mixed group blend modes can look different after flattening when they depend on backdrop artwork outside the group. Test complex compositing before delivery.</caution>
+    </behavior>
+    <behavior id="group" rank="4" label="Preserve layer hierarchy" scope="group" description="Keep authored parent/child grouping.">
+      <target profile="spine" equivalence="metadata" syntax="" representation="PSD hierarchy" note="Spine [folder] controls the attachment output directory. PSD groups retain their own hierarchy." />
+      <target profile="generator" equivalence="metadata" syntax="" representation="PSD hierarchy" note="Generator can use any group for compositing but does not use arbitrary folder names as paths." />
+      <target profile="oca" equivalence="metadata" syntax="" representation="OCA JSON" note="Native OCA expresses groups structurally; no naming tag required." />
+      <authoring syntax=".ungroup" note="HandOff Collection directive. Omit this container from PSD/OCA and promote its contents to the nearest retained ancestor." />
+      <caution>Group membership must preserve original draw order; noncontiguous hierarchy needs split group instances.</caution>
+    </behavior>
+    <behavior id="hidden" rank="5" label="Hidden / initial visibility" scope="layer,group" description="Preserve artwork but open it hidden.">
+      <target profile="spine" equivalence="metadata" syntax="" representation="PSD metadata" note="Spine can optionally ignore hidden layers on import." />
+      <target profile="generator" equivalence="metadata" syntax="" representation="PSD metadata" note="Photoshop Generator follows the normal layer visibility settings when producing assets." />
+      <target profile="oca" equivalence="metadata" syntax="" representation="OCA JSON" note="No OCA name tag needed." />
+      <authoring syntax=".hidden" note="Proposed Blender authoring convention; not a vendor syntax." />
+    </behavior>
+    <behavior id="blend" rank="6" label="Layer / group blend mode" scope="layer,group" description="Preserve blending behaviour where known to be compatible.">
+      <target profile="spine" equivalence="metadata" syntax="" representation="PSD metadata" note="Spine only recognises these four imported modes." />
+      <target profile="generator" equivalence="metadata" syntax="" representation="PSD metadata / generated pixels" note="No name tag; asset generation renders composite." />
+      <target profile="oca" equivalence="metadata" syntax="" representation="OCA JSON" note="See canonical blending table; OCA uses Krita semantics." />
+      <authoring syntax=".normal" note="Proposed Blender authoring convention; not a vendor syntax." />
+      <caution>Unrecognised modes produce warnings. Check the appearance of nested blend groups after export.</caution>
+    </behavior>
+    <behavior id="folder" rank="7" label="Asset image subfolder" scope="layer,group" description="Place extracted image assets within a directory structure.">
+      <target profile="spine" equivalence="native" syntax="[folder]" representation="layer/group-name" note="Spine attachment output paths and hierarchy." emit="[folder:{name}]" />
+      <target profile="generator" equivalence="partial" syntax="icons/Icon.png" representation="generated asset filename" note="Generator creates subfolder paths only as part of an asset filename." />
+      <target profile="oca" equivalence="metadata" syntax="" representation="OCA JSON / folder structure" note="Folder structure from group and layer metadata; not a name directive." />
+      <authoring syntax=".folder" note="Proposed Blender authoring convention; not a vendor syntax." />
+      <caution>Grouping folders can organise artwork without creating an asset output directory.</caution>
+    </behavior>
+    <behavior id="asset-format" rank="8" label="Generate named asset / file format" scope="layer,group" description="Generate one asset file with an explicit image format.">
+      <target profile="spine" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="generator" equivalence="native" syntax="Icon.png" representation="generator filename" note="These names activate Generator when enabled and PSD saved." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <caution>SVG generation from raster content does not create genuinely editable vector artwork.</caution>
+    </behavior>
+    <behavior id="asset-multiple" rank="9" label="Multiple assets from a single layer" scope="layer,group" description="Export alternative formats/sizes from one layer.">
+      <target profile="spine" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="generator" equivalence="native" syntax="Icon.png,Icon.jpg" representation="generator filename" note="Comma and plus both separate asset specifications." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+    </behavior>
+    <behavior id="asset-scale" rank="10" label="Generated asset relative scale" scope="layer,group" description="Resize output asset while leaving PSD source pixels unchanged.">
+      <target profile="spine" equivalence="none" syntax="" representation="Spine attachment transform" note="Spine inverse attachment scale controls the attachment transform. Generator asset sizing is set through filenames." />
+      <target profile="generator" equivalence="native" syntax="200% Logo.png" representation="generator filename" note="Percentage prefix followed by space." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+    </behavior>
+    <behavior id="asset-dimensions" rank="11" label="Absolute asset dimensions" scope="layer,group" description="Set generated asset width, height or proportional wildcard dimensions.">
+      <target profile="spine" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="generator" equivalence="native" syntax="100x100 Icon.png" representation="generator filename" note="Units px/in/cm/mm; cannot combine absolute and percentage size." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+    </behavior>
+    <behavior id="asset-quality" rank="12" label="JPEG quality" scope="layer,group" description="Encode JPEG output quality in a generated filename.">
+      <target profile="spine" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="generator" equivalence="native" syntax="Hero.jpg80%" representation="generator filename" note="JPEG 1-10 or 1%-100%; no suffix defaults to 90%." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+    </behavior>
+    <behavior id="asset-depth" rank="13" label="PNG variant" scope="layer,group" description="Select PNG-8 indexed, PNG-24 RGB or PNG-32 RGBA Generator asset.">
+      <target profile="spine" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="generator" equivalence="native" syntax="Icon.png24" representation="generator filename" note="Default png32. These options control PNG channel variants and do not specify per-channel bit depth." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <caution>Never translate png32 to 32-bit-float; Generator png32 is 32 total bits (8 RGBA).</caution>
+    </behavior>
+    <behavior id="slot" rank="14" label="Slot assignment" scope="layer,group" description="Assign attachments to named Spine slots.">
+      <target profile="spine" equivalence="native" syntax="[slot]" representation="layer/group-name" note="Closest ancestor slot applies." emit="[slot:{name}]" />
+      <target profile="generator" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <authoring syntax=".slot:name" note="Proposed Blender authoring convention; not a vendor syntax." />
+    </behavior>
+    <behavior id="bone" rank="15" label="Bone assignment" scope="layer,group" description="Create or assign Spine bones.">
+      <target profile="spine" equivalence="native" syntax="[bone]" representation="layer/group-name" note="Bone positioned using first visible layer center." emit="[bone:{name}]" />
+      <target profile="generator" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <authoring syntax=".bone:name" note="Proposed Blender authoring convention; not a vendor syntax." />
+    </behavior>
+    <behavior id="skin" rank="16" label="Skin / placeholder assignment" scope="layer,group" description="Create Spine skin placeholders.">
+      <target profile="spine" equivalence="native" syntax="[skin]" representation="layer/group-name" note="Closest skin defines skin name; ancestor tags affect folders." emit="[skin:{name}]" />
+      <target profile="generator" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <authoring syntax=".skin:name" note="Proposed Blender authoring convention; not a vendor syntax." />
+    </behavior>
+    <behavior id="mesh" rank="17" label="Mesh attachment" scope="layer" description="Create/link mesh attachment in Spine.">
+      <target profile="spine" equivalence="native" syntax="[mesh]" representation="layer-name" note="Documentation restricts these to layers or merged groups." emit="[mesh:{name}]" />
+      <target profile="generator" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <authoring syntax=".mesh:name" note="Proposed Blender authoring convention; not a vendor syntax." />
+    </behavior>
+    <behavior id="attachment-path" rank="18" label="Spine attachment image path" scope="layer,merged-group" description="Override attachment image path independently from layer name.">
+      <target profile="spine" equivalence="native" syntax="[path:name]" representation="layer-name" note="Slash at start makes path absolute relative to image root; different from Generator asset path." emit="[path:{name}]" />
+      <target profile="generator" equivalence="none" syntax="" representation="generator filename" note="Generator paths are full output filename specifications, with file extensions." />
+      <target profile="oca" equivalence="metadata" syntax="" representation="OCA JSON" note="OCA stores the frame image path in metadata." />
+    </behavior>
+    <behavior id="trim" rank="19" label="Trim whitespace / canvas / mask" scope="layer,group" description="Control trimming of exported attachments.">
+      <target profile="spine" equivalence="native" syntax="[trim]" representation="layer/group-name" note="Spine switches whitespace removal, canvas size, or mask trim." emit="[trim:{mode}]" />
+      <target profile="generator" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No standard direct trim flag; preprocessing would be required." />
+    </behavior>
+    <behavior id="padding" rank="20" label="Attachment padding" scope="layer,group" description="Add padding pixels for imported attachment.">
+      <target profile="spine" equivalence="native" syntax="[pad:number]" representation="layer/group-name" note="Spine PSD importer-specific padding." emit="[pad:{number}]" />
+      <target profile="generator" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+    </behavior>
+    <behavior id="rotation" rank="21" label="Attachment inverse rotation" scope="layer,group" description="Rotate extracted attachment inversely for atlas use.">
+      <target profile="spine" equivalence="native" syntax="[rotate:degrees]" representation="layer/group-name" note="Spine attachment inverse rotation." emit="[rotate:{degrees}]" />
+      <target profile="generator" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+    </behavior>
+    <behavior id="origin" rank="22" label="Spine origin marker" scope="layer" description="Use layer center as origin and do not export marker image.">
+      <target profile="spine" equivalence="native" syntax="[origin]" representation="layer-name" note="Spine layer origin marker; guides are another way to set origin." emit="[origin]" />
+      <target profile="generator" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+    </behavior>
+    <behavior id="overlay" rank="23" label="Spine overlay mask" scope="layer,group" description="Clipping-like overlay for underlying layers.">
+      <target profile="spine" equivalence="native" syntax="[overlay]" representation="layer/group-name" note="Spine overlay behavior; not a general PSD clipping mask." emit="[overlay]" />
+      <target profile="generator" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+    </behavior>
+    <behavior id="child-bones" rank="24" label="Create bones for group immediate children" scope="group" description="Automatically add bone tags to immediate children.">
+      <target profile="spine" equivalence="native" syntax="[bones]" representation="group-name" note="Group auto-tag and suppression." emit="[bones]" />
+      <target profile="generator" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+    </behavior>
+    <behavior id="child-slots" rank="25" label="Create slots for group immediate children" scope="group" description="Automatically add slot tags to immediate children.">
+      <target profile="spine" equivalence="native" syntax="[slots]" representation="group-name" note="Group auto-tag and suppression." emit="[slots]" />
+      <target profile="generator" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+    </behavior>
+    <behavior id="group-pattern" rank="26" label="Pattern rename for name, path, bone and slot" scope="group" description="Apply wildcard-based propagation to group child directives.">
+      <target profile="spine" equivalence="native" syntax="[name:prefix*suffix]" representation="group-name" note="Suppress with [!name] / [!path] / [!bone] / [!slot]." emit="[name:{pattern}]" />
+      <target profile="generator" equivalence="none" syntax="" representation="none" note="Do not attempt to transfer Spine wildcard patterns to Generator." />
+      <target profile="oca" equivalence="none" syntax="" representation="none" note="No direct equivalent; preserve original expression and warn." />
+    </behavior>
+  </behaviors>
+  <sourceTokens>
+    <token behavior="exclude" profile="blender" template=".ignore" scope="layer,group" />
+    <token behavior="exclude" profile="spine" template="[ignore]" scope="layer,group" />
+    <token behavior="exclude" profile="oca" template="_ignore_" scope="layer,group" />
+    <token behavior="reference" profile="blender" template=".ref" scope="layer,group" />
+    <token behavior="reference" profile="blender" template=".reference" scope="layer,group" />
+    <token behavior="reference" profile="oca" template="_reference_" scope="layer,group" />
+    <token behavior="merge" profile="blender" template=".merge" scope="layer,group" />
+    <token behavior="merge" profile="spine" template="[merge]" scope="layer,group" />
+    <token behavior="merge" profile="oca" template="_merge_" scope="layer,group" />
+    <token behavior="folder" profile="blender" template=".folder" scope="layer,group" />
+    <token behavior="folder" profile="spine" template="[folder]" scope="layer,group" />
+    <token behavior="folder" profile="spine" template="[folder:{value}]" scope="layer,group" />
+    <token behavior="hidden" profile="blender" template=".hidden" scope="layer,group" />
+    <token behavior="slot" profile="spine" template="[slot]" scope="layer,group" />
+    <token behavior="slot" profile="spine" template="[slot:{value}]" scope="layer,group" />
+    <token behavior="bone" profile="spine" template="[bone]" scope="layer,group" />
+    <token behavior="bone" profile="spine" template="[bone:{value}]" scope="layer,group" />
+    <token behavior="skin" profile="spine" template="[skin]" scope="layer,group" />
+    <token behavior="skin" profile="spine" template="[skin:{value}]" scope="layer,group" />
+    <token behavior="mesh" profile="spine" template="[mesh]" scope="layer,group" />
+    <token behavior="mesh" profile="spine" template="[mesh:{value}]" scope="layer,group" />
+    <token behavior="attachment-path" profile="spine" template="[path:{value}]" scope="layer,group" />
+    <token behavior="trim" profile="spine" template="[trim]" scope="layer,group" />
+    <token behavior="trim" profile="spine" template="[trim:{value}]" scope="layer,group" />
+    <token behavior="padding" profile="spine" template="[pad:{value}]" scope="layer,group" />
+    <token behavior="rotation" profile="spine" template="[rotate:{value}]" scope="layer,group" />
+    <token behavior="origin" profile="spine" template="[origin]" scope="layer,group" />
+    <token behavior="overlay" profile="spine" template="[overlay]" scope="layer,group" />
+    <token behavior="child-bones" profile="spine" template="[bones]" scope="layer,group" />
+    <token behavior="child-bones" profile="spine" template="[!bones]" scope="layer,group" />
+    <token behavior="child-slots" profile="spine" template="[slots]" scope="layer,group" />
+    <token behavior="child-slots" profile="spine" template="[!slots]" scope="layer,group" />
+    <token behavior="group-pattern" profile="spine" template="[name:{value}]" scope="layer,group" />
+    <token behavior="group-pattern" profile="spine" template="[path:{value}]" scope="layer,group" />
+    <token behavior="group-pattern" profile="spine" template="[bone:{value}]" scope="layer,group" />
+    <token behavior="group-pattern" profile="spine" template="[slot:{value}]" scope="layer,group" />
+    <token behavior="group-pattern" profile="spine" template="[!name]" scope="layer,group" />
+    <token behavior="group-pattern" profile="spine" template="[!path]" scope="layer,group" />
+    <token behavior="group-pattern" profile="spine" template="[!bone]" scope="layer,group" />
+    <token behavior="group-pattern" profile="spine" template="[!slot]" scope="layer,group" />
+  </sourceTokens>
+  <generatorGrammar profile="generator">
+    <rule profile="spine" id="bracket-tag" regex="\[(?:!?[A-Za-z]+)(?::[^\]]+)?\]" example="[slot:Eye]" description="Spine tag with optional named parameter" />
+    <rule profile="oca" id="krita-tag" regex="_(?:merge|ignore|reference)_" example="_reference_" description="OCA for Krita exporter layer-name suffix" />
+    <rule profile="generator" id="generator-spec" regex="(?:(?:\d+(?:\.\d+)?%|(?:\d+(?:\.\d+)?(?:px|in|cm|mm)?|\?)\s*x\s*(?:\d+(?:\.\d+)?(?:px|in|cm|mm)?|\?))\s+)?[^,:*+]+?\.(?:png(?:8|24|32)?|jpe?g(?:\d{1,2}|\d{1,3}%)?|gif|svg)(?=$|\s*[, +])" example="200% Icon.png8" description="Filename specification with optional size and format/quality" />
+    <rule profile="image-node-plus-internal" id="suffix-dot" regex="\.(?:ref|reference|ignore|ungroup|merge|hidden|slot|bone|skin|mesh|folder|normal|multiply|add|screen)(?=$|[.\s])" example=".ref" description="Proposed HandOff authoring convention" />
+  </generatorGrammar>
+  <exrConventions schema="openexr-naming-v1" interpretation="channel-and-layer-conventions-not-layer-tags" conversion="none">
+    <channels>
+      <channel name="R" kind="color" meaning="Red channel" status="defined" />
+      <channel name="G" kind="color" meaning="Green channel" status="defined" />
+      <channel name="B" kind="color" meaning="Blue channel" status="defined" />
+      <channel name="A" kind="alpha" meaning="Opacity/alpha; normally premultiplied colors" status="defined" />
+      <channel name="Y" kind="luminance" meaning="Luminance in Y/RY/BY representation" status="recommended" />
+      <channel name="RY" kind="chroma" meaning="Red relative to luminance" status="recommended" />
+      <channel name="BY" kind="chroma" meaning="Blue relative to luminance" status="recommended" />
+      <channel name="AR" kind="alpha" meaning="Per-channel red alpha" status="recommended" />
+      <channel name="AG" kind="alpha" meaning="Per-channel green alpha" status="recommended" />
+      <channel name="AB" kind="alpha" meaning="Per-channel blue alpha" status="recommended" />
+      <channel name="Z" kind="depth" meaning="Front depth; special meaning in deep samples" status="reserved-deep" />
+      <channel name="ZBack" kind="depth" meaning="Back depth of deep sample" status="reserved-deep" />
+      <channel name="RA" kind="alpha" meaning="Per-channel red alpha in deep samples" status="reserved-deep" />
+      <channel name="GA" kind="alpha" meaning="Per-channel green alpha in deep samples" status="reserved-deep" />
+      <channel name="BA" kind="alpha" meaning="Per-channel blue alpha in deep samples" status="reserved-deep" />
+      <channel name="id" kind="identifier" meaning="Deep sample object identifier" status="reserved-deep" />
+    </channels>
+    <patterns>
+      <pattern id="base" syntax="R | G | B | A" meaning="Base layer colour channels" />
+      <pattern id="layer" syntax="{layer}.R | {layer}.G | {layer}.B | {layer}.A" meaning="Layer name is everything before the final dot" />
+      <pattern id="nested" syntax="{outer}.{inner}.R" meaning="Dot-delimited channel prefix encodes nested EXR layer names" />
+      <pattern id="multiview" syntax="{layer}.{view}.R" meaning="Single-part multi-view channels; view position is penultimate" />
+      <pattern id="multipart" syntax="part name / view attribute" meaning="Multipart files identify parts and optionally views via header attributes" />
+      <pattern id="cryptomatte" syntax="CryptoObject00.R | CryptoMaterial00.G" meaning="Cryptomatte identifies masks through layer channels and EXR header metadata" />
+    </patterns>
+    <blenderPasses application="Blender Cycles / Eevee" note="Blender groups passes by purpose. Exported OpenEXR channels depend on the Blender version and naming settings.">
+      <pass category="image" name="Combined" status="blender-pass-not-exr-tag" />
+      <pass category="image" name="Alpha" status="blender-pass-not-exr-tag" />
+      <pass category="data" name="Depth (Z)" status="blender-pass-not-exr-tag" />
+      <pass category="data" name="Mist" status="blender-pass-not-exr-tag" />
+      <pass category="data" name="Position" status="blender-pass-not-exr-tag" />
+      <pass category="data" name="Normal" status="blender-pass-not-exr-tag" />
+      <pass category="data" name="Vector" status="blender-pass-not-exr-tag" />
+      <pass category="data" name="UV" status="blender-pass-not-exr-tag" />
+      <pass category="data" name="Object Index" status="blender-pass-not-exr-tag" />
+      <pass category="data" name="Material Index" status="blender-pass-not-exr-tag" />
+      <pass category="diffuse" name="Diffuse Direct" status="blender-pass-not-exr-tag" />
+      <pass category="diffuse" name="Diffuse Indirect" status="blender-pass-not-exr-tag" />
+      <pass category="diffuse" name="Diffuse Color" status="blender-pass-not-exr-tag" />
+      <pass category="glossy" name="Glossy Direct" status="blender-pass-not-exr-tag" />
+      <pass category="glossy" name="Glossy Indirect" status="blender-pass-not-exr-tag" />
+      <pass category="glossy" name="Glossy Color" status="blender-pass-not-exr-tag" />
+      <pass category="transmission" name="Transmission Direct" status="blender-pass-not-exr-tag" />
+      <pass category="transmission" name="Transmission Indirect" status="blender-pass-not-exr-tag" />
+      <pass category="transmission" name="Transmission Color" status="blender-pass-not-exr-tag" />
+      <pass category="volume" name="Volume Direct" status="blender-pass-not-exr-tag" />
+      <pass category="volume" name="Volume Indirect" status="blender-pass-not-exr-tag" />
+      <pass category="other-light" name="Emission" status="blender-pass-not-exr-tag" />
+      <pass category="other-light" name="Environment" status="blender-pass-not-exr-tag" />
+      <pass category="other-light" name="Ambient Occlusion" status="blender-pass-not-exr-tag" />
+      <pass category="other-light" name="Shadow Catcher" status="blender-pass-not-exr-tag" />
+      <pass category="mask" name="Cryptomatte Object" status="blender-pass-not-exr-tag" />
+      <pass category="mask" name="Cryptomatte Material" status="blender-pass-not-exr-tag" />
+      <pass category="mask" name="Cryptomatte Asset" status="blender-pass-not-exr-tag" />
+      <pass category="custom" name="Shader AOV Color" status="blender-pass-not-exr-tag" />
+      <pass category="custom" name="Shader AOV Value" status="blender-pass-not-exr-tag" />
+      <pass category="denoising" name="Denoising Normal" status="blender-pass-not-exr-tag" />
+      <pass category="denoising" name="Denoising Albedo" status="blender-pass-not-exr-tag" />
+    </blenderPasses>
+  </exrConventions>
+</tagRegistry>

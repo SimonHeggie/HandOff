@@ -26,4 +26,4 @@ dist/
 *~
 
 # Pillow wheels are included in release ZIPs, not tracked in the source repo.
-blend_psd_tools/pillow/*.whl
+handoff/pillow/*.whl
