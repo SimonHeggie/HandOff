@@ -1,0 +1,69 @@
+name: Verify HandOff source and installable ZIP
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'handoff/**'
+      - 'scripts/**'
+      - 'docs/pillow-wheels.json'
+      - '.github/workflows/verify-install-and-core.yml'
+  pull_request:
+    paths:
+      - 'handoff/**'
+      - 'scripts/**'
+      - 'docs/pillow-wheels.json'
+      - '.github/workflows/verify-install-and-core.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  blender-free-regressions-and-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install test dependencies
+        run: python -m pip install --disable-pip-version-check numpy pillow==12.0.0 attrs scipy
+      - name: Run core OCA, PSD, SVG and Pillow regression tests
+        env:
+          PYTHONPATH: handoff:handoff/vendor
+        run: |
+          python -m unittest -q \
+            test_pillow_loader test_oca_sequence test_color_management \
+            test_handoff_hierarchy test_svg_export
+      - name: Download only hash-verified Pillow distribution wheels
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          from urllib.request import urlopen
+          manifest = json.loads(Path('docs/pillow-wheels.json').read_text())
+          with urlopen('https://pypi.org/pypi/pillow/12.0.0/json',timeout=30) as response:
+              release = json.load(response)
+          available = {item['filename']: item for item in release['urls']}
+          target = Path('.release-wheels')
+          target.mkdir(exist_ok=True)
+          for entry in manifest:
+              filename = entry['filename']
+              record = available[filename]
+              if record['digests']['sha256'] != entry['sha256']:
+                  raise RuntimeError(f'Unexpected Pillow wheel digest: {filename}')
+              with urlopen(record['url'], timeout=90) as response:
+                  data = response.read()
+              if len(data) != entry['bytes'] or hashlib.sha256(data).hexdigest() != entry['sha256']:
+                  raise RuntimeError(f'Wheel download corrupted: {filename}')
+              (target/filename).write_bytes(data)
+          PY
+      - name: Rebuild installable add-on ZIP
+        run: |
+          python scripts/build_install_zip.py --wheels-from .release-wheels \
+            --output dist/HandOff-source-validation.zip
+      - name: Smoke-test actual extracted installation and native Pillow loader
+        run: python scripts/verify_install_zip.py dist/HandOff-source-validation.zip

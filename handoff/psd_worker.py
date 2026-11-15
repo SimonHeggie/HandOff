@@ -576,7 +576,21 @@ def safe_component(text):
     return text or 'Layer'
 
 
-def make_oca_layer(parts, mode, path_relative, width, height, depth, frame, idx, reference=False):
+# OCA stores application-defined label indices, not hexadecimal colours.
+# We preserve the eight conventional Blender/PSD colour names as indices 1..8;
+# importers can interpret their own palettes differently (per OCA spec).
+_OCA_COLOUR_LABELS = {
+    'RED': 1, 'ORANGE': 2, 'YELLOW': 3, 'GREEN': 4,
+    'BLUE': 5, 'VIOLET': 6, 'MAGENTA': 7, 'GRAY': 8,
+}
+
+
+def oca_label(colour):
+    """OCA -1 is unlabelled; group and paint layers use the same mapping."""
+    return _OCA_COLOUR_LABELS.get(str(colour or '').upper(), -1)
+
+
+def make_oca_layer(parts, mode, path_relative, width, height, depth, frame, idx, reference=False, label=-1):
     identifier = str(uuid.uuid5(uuid.NAMESPACE_URL, '/'.join(parts) + ':' + str(idx)))
     return {
         'name': parts[-1], 'id': identifier, 'type': 'paintlayer',
@@ -590,7 +604,7 @@ def make_oca_layer(parts, mode, path_relative, width, height, depth, frame, idx,
         }],
         'childLayers': [], 'blendingMode': OCA_BLENDS.get(mode, 'normal'),
         'inheritAlpha': False, 'position': [width // 2, height // 2],
-        'width': width, 'height': height, 'label': -1, 'opacity': 1.0,
+        'width': width, 'height': height, 'label': int(label), 'opacity': 1.0,
         'visible': not reference, 'passThrough': False, 'reference': bool(reference), 'meta': {},
     }
 
@@ -657,7 +671,7 @@ def assemble_oca(job, inputs):
                         'frames': [], 'childLayers': [], 'blendingMode': OCA_BLENDS[group_mode] if group_mode else 'normal',
                         'passThrough': not bool(group_mode), 'inheritAlpha': False,
                         'position': [width//2, height//2],
-                        'width': width, 'height': height, 'label': -1, 'opacity': 1.,
+                        'width': width, 'height': height, 'label': oca_label(child.get('sheet_color')), 'opacity': 1.,
                         'visible': not bool(tags(child['raw']) & {'ref','reference'}),
                         'reference': bool(tags(child['raw']) & {'ref','reference'}), 'meta': {},
                     }
@@ -714,7 +728,8 @@ def assemble_oca(job, inputs):
                 if entry.get('render_placeholder'):
                     notice(job, entry['name'] + ': disabled for rendering; hidden blank OCA placeholder created')
                 layer = make_oca_layer(parts, effective_layer_mode(item, parent_blend), rel,
-                                       width, height, depth, frame, leaf_counter, reference=is_ref)
+                                       width, height, depth, frame, leaf_counter, reference=is_ref,
+                                       label=oca_label(item.get('inherited_color')))
                 cel = layer['frames'][0]
                 cel['position'] = [left + cropped_width / 2, top + cropped_height / 2]
                 cel['width'], cel['height'] = cropped_width, cropped_height

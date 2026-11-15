@@ -49,6 +49,53 @@ class OCASequence(unittest.TestCase):
             reconstructed[1:5,2:7] = cropped
             np.testing.assert_array_equal(reconstructed, original)
 
+    def test_oca_preserves_collection_colour_labels_on_groups_and_paint_layers(self):
+        from collection_colors import source_collection_colors
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder); cache=root/'cache';cache.mkdir()
+            for slug in ('A_','B_'):
+                Image.new('RGBA',(5,4),(10,50,90,255)).save(cache/(slug+'00000.png'))
+            collections={k:SimpleNamespace(color_tag=v) for k,v in {
+                'Costume':'COLOR_05', 'ForeArm_R':'COLOR_03',
+                'Head':'NONE'}.items()}
+            inputs=[dict(name='Arm', slug='A_', collection_path='Costume/ForeArm_R'),
+                    dict(name='Head', slug='B_', collection_path='Costume/Head')]
+            for entry in inputs:
+                entry['collection_colors']=source_collection_colors(entry['collection_path'],collections)
+            assemble(dict(format='OCA',dir=str(cache),dest=str(root/'Character.oca'),
+                frame=0,depth=8,extension='.png',overwrite=True,hierarchy='GROUPS',
+                manifest=inputs))
+            data=json.loads((root/'Character.oca').read_text())
+            costume=data['layers'][0]
+            self.assertEqual(costume['name'],'Costume')
+            self.assertEqual(costume['label'],5)  # Blender blue -> OCA label 5.
+            forearm=next(c for c in costume['childLayers'] if c['name']=='ForeArm_R')
+            self.assertEqual(forearm['label'],3)  # Yellow.
+            self.assertEqual(forearm['childLayers'][0]['label'],3)
+            head=next(c for c in costume['childLayers'] if c['name']=='Head')
+            self.assertEqual(head['label'],-1) # Explicitly untagged collection.
+            self.assertEqual(head['childLayers'][0]['label'],-1)
+
+    def test_oca_animation_keeps_colour_labels_and_layer_order(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder); cache=root/'cache';cache.mkdir();frames=[]
+            for frame in (0,1):
+                Image.new('RGBA',(5,4),(40+frame,30,20,255)).save(cache/f'A_{frame:05d}.png')
+                Image.new('RGBA',(5,4),(20,80+frame,50,255)).save(cache/f'B_{frame:05d}.png')
+                frames.append(dict(format='OCA',frame=frame,cache_frame=frame,dir=str(cache),
+                    extension='.png',depth=8,hierarchy='GROUPS',overwrite=True,frame_rate=12,
+                    manifest=[dict(name='Top',slug='A_',collection_path='Assets',collection_colors=['BLUE']),
+                              dict(name='Bottom',slug='B_',collection_path='Assets',collection_colors=['BLUE'])]))
+            assemble(dict(frames[-1],dest=str(root/'Frames.oca'),oca_frames=frames,oca_range=[0,1,1]))
+            doc=json.loads((root/'Frames.oca').read_text())
+            group=doc['layers'][0]
+            self.assertEqual(group['label'],5)
+            self.assertEqual([c['name'] for c in group['childLayers']],['Bottom','Top'])
+            for child in group['childLayers']:
+                self.assertEqual(child['label'],5)
+                self.assertEqual(len(child['frames']),2)
+
     def test_duplicate_layer_names_are_disambiguated_without_order_numbers(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory); cache=root/'cache';cache.mkdir()
