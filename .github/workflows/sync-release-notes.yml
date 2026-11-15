@@ -1,0 +1,25 @@
+name: Sync documentation to existing alpha release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/RELEASE_NOTES_v0.7.51-alpha.1.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-release-body:
+    if: github.repository == 'SimonHeggie/HandOff'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout documentation
+        uses: actions/checkout@v4
+      - name: Update notes on existing release only
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v0.7.51-alpha.1 >/dev/null
+          gh release edit v0.7.51-alpha.1 --notes-file docs/RELEASE_NOTES_v0.7.51-alpha.1.md
