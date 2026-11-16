@@ -1,34 +1,28 @@
-name: Sync notes for existing alpha releases
+name: Verify preserved release history
 
 on:
   push:
     branches: [main]
     paths:
+      - "docs/HISTORICAL_GITHUB_RELEASE_NOTES.md"
       - "docs/FIRST_RELEASE_NOTES.md"
       - "docs/RELEASE_NOTES_v0.7.51-alpha.1.md"
       - ".github/workflows/sync-release-notes.yml"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  sync-release-bodies:
-    if: github.repository == 'SimonHeggie/HandOff'
+  verify-history:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout documentation
-        uses: actions/checkout@v4
-      - name: Update notes and titles on existing releases
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - uses: actions/checkout@v4
+      - name: Confirm historical notes are retained
         run: |
           set -euo pipefail
-          gh release view v0.7.50-alpha.1 >/dev/null
-          gh release view v0.7.51-alpha.1 >/dev/null
-          gh release edit v0.7.50-alpha.1 \
-            --title "HandOff v0.7.50 Alpha 1 - Initial Release (Comp-IO build)" \
-            --notes-file docs/FIRST_RELEASE_NOTES.md
-          gh release edit v0.7.51-alpha.1 \
-            --title "HandOff v0.7.51 Alpha 1 - Naming and Compatibility Update" \
-            --notes-file docs/RELEASE_NOTES_v0.7.51-alpha.1.md
+          test -s docs/FIRST_RELEASE_NOTES.md
+          test -s docs/RELEASE_NOTES_v0.7.51-alpha.1.md
+          grep -Fq 'v0.7.50-alpha.1' docs/HISTORICAL_GITHUB_RELEASE_NOTES.md
+          grep -Fq 'v0.7.51-alpha.1' docs/HISTORICAL_GITHUB_RELEASE_NOTES.md
+          echo 'Original public release notes remain available in the repository.'
