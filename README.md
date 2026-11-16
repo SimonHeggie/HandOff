@@ -81,6 +81,11 @@ These are **planned directions**, not features claimed for this release.
 
 Advanced OCO, Rive and Spine rig-format work is deferred until Blender-native handoff and animation isolation/capture are reliable.
 
+
+## Preserved release history
+
+The complete text of previous public release announcements is retained in [Historical GitHub Release Notes](docs/HISTORICAL_GITHUB_RELEASE_NOTES.md), alongside [development history](docs/DEVELOPMENT_HISTORY.md). This archive remains accessible if superseded alpha release entries are removed from GitHub's Releases page.
+
 ## Licensing and credits
 
 HandOff is authored by **Simon Heggie**. The vendored `psd_tools` library retains its [MIT licence notice](handoff/PSD_TOOLS_LICENSE.txt); **the project as a whole has not yet been assigned a licence in this repository**. Third-party notices and technical reference links are available in the [manual](handoff/manual/README.md). Do not assume the vendored-library licence applies to all HandOff source code.
