@@ -1,0 +1,123 @@
+name: Publish consolidated initial HandOff release
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "Enter PUBLISH_HANDOFF_INITIAL after syncing the complete source"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: inputs.confirm == 'PUBLISH_HANDOFF_INITIAL'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TAG: v0.7.52-alpha.1
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Verify this exact candidate source and the historical notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '876d1eaea3bc1dea5db5a5926727fa99374a5dfadf3d171c8d4752918cfb1c05  handoff/oca_vectors.py' | sha256sum -c -
+          echo 'fa42d315e2f9c13a182b8f814fd55fac55898b07438c13acc7a0fad1159a68ce  handoff/oca_companions.py' | sha256sum -c -
+          echo '8110304fb7be1822d94d4bd0dbd93d22b476d0a422092764b0f2d38eec4592e9  handoff/oca_controls.py' | sha256sum -c -
+          echo '169c40f50126bc6d275a0e05035908cd0832ced40e097e0518abc76edb23acc7  handoff/assets/export_success.wav' | sha256sum -c -
+          echo '23fa91dbb3796e04377ef36ec2900de0bf28f78e62c686b2c1988da9d4000099  handoff/vendor/fonts/Bfont-Regular.otf' | sha256sum -c -
+          grep -Eq '^VERSION_INFO = \(0, 7, 52\)$' handoff/branding.py
+          grep -q 'v0.7.50-alpha.1' docs/HISTORICAL_GITHUB_RELEASE_NOTES.md
+          grep -q 'v0.7.51-alpha.1' docs/HISTORICAL_GITHUB_RELEASE_NOTES.md
+          grep -q 'v0.7.52-alpha.1' README.md
+          test -s docs/RELEASE_NOTES_v0.7.52-alpha.1.md
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          files=list(Path('handoff').rglob('*.py'))
+          assert len(files) >= 80, f'incomplete source: {len(files)} Python files'
+          for p in files:
+              ast.parse(p.read_text(encoding='utf-8'), filename=str(p))
+          print('Validated',len(files),'Python files')
+          PY
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists: refusing to republish it" >&2
+            exit 1
+          fi
+
+      - name: Download pinned Pillow wheels and verify hashes
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib, json, urllib.request
+          from pathlib import Path
+          manifest=json.loads(Path('docs/pillow-wheels.json').read_text())
+          with urllib.request.urlopen('https://pypi.org/pypi/pillow/12.0.0/json',timeout=30) as f:
+              available={x['filename']:x for x in json.load(f)['urls']}
+          output=Path('.release-wheels');output.mkdir(exist_ok=True)
+          for item in manifest:
+              name=item['filename']; src=available.get(name)
+              if not src or src['digests']['sha256']!=item['sha256']:
+                  raise RuntimeError('Missing pinned Pillow wheel: '+name)
+              with urllib.request.urlopen(src['url'],timeout=90) as f:
+                  data=f.read()
+              if len(data)!=item['bytes'] or hashlib.sha256(data).hexdigest()!=item['sha256']:
+                  raise RuntimeError('Wheel validation failed: '+name)
+              (output/name).write_bytes(data)
+              print('Verified',name)
+          PY
+
+      - name: Build and check the complete installable ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/build_install_zip.py --wheels-from .release-wheels --output "dist/HandOff-${TAG}-blender-addon.zip"
+          python scripts/verify_install_zip.py "dist/HandOff-${TAG}-blender-addon.zip"
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          target=Path('dist/HandOff-v0.7.52-alpha.1-blender-addon.zip')
+          assert target.stat().st_size > 25_000_000
+          with ZipFile(target) as z:
+              assert z.testzip() is None
+              contents=set(z.namelist())
+              for n in ['handoff/__init__.py','handoff/oca_vectors.py','handoff/oca_controls.py','handoff/assets/export_success.wav','handoff/vendor/fonts/Bfont-Regular.otf']:
+                  assert n in contents,n
+              assert sum(n.endswith('.whl') for n in contents)==6
+          PY
+          (cd dist && sha256sum "HandOff-${TAG}-blender-addon.zip" > SHA256SUMS.txt)
+
+      - name: Publish the consolidated release and verify assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" "dist/HandOff-${TAG}-blender-addon.zip" dist/SHA256SUMS.txt \
+            --target "$GITHUB_SHA" \
+            --title 'HandOff v0.7.52 Alpha 1 — Initial Consolidated Release' \
+            --notes-file docs/RELEASE_NOTES_v0.7.52-alpha.1.md \
+            --prerelease
+          gh release view "$TAG" --json assets --jq '.assets[].name' | grep -Fx "HandOff-${TAG}-blender-addon.zip"
+          gh release view "$TAG" --json assets --jq '.assets[].name' | grep -Fx 'SHA256SUMS.txt'
+
+      - name: Remove superseded GitHub release entries, preserving Git tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          for old in v0.7.50-alpha.1 v0.7.51-alpha.1; do
+            grep -Fq "$old" docs/HISTORICAL_GITHUB_RELEASE_NOTES.md
+            if gh release view "$old" >/dev/null 2>&1; then
+              gh release delete "$old" --yes
+            fi
+          done
+          echo "Release list consolidated; original tags and notes remain in Git history."
+
+      - name: Verify the new release remains available
+        run: |
+          gh release view "$TAG" --json url,assets
