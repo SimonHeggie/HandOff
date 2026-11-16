@@ -35,7 +35,9 @@ REFERENCE_PAGES = [
     ('LAYER_TAGS.md', 'Layer-tag-reference', 'Layer-tag reference'),
     ('BLEND_MODES.md', 'Blend-mode-reference', 'Blend-mode reference'),
 ]
-LINKS = {name:slug for name,slug,_ in PAGES + REFERENCE_PAGES}
+OPTIONAL_PAGES = [('oca.html', 'OCA-export', 'OCA export')]
+OPTIONAL_REFERENCE_PAGES = [('OCA_CONTROLS.md', 'OCA-controls', 'OCA controls'), ('OCA_VECTORS.md', 'OCA-vector-artwork', 'OCA vector artwork')]
+LINKS = {name:slug for name,slug,_ in PAGES + REFERENCE_PAGES + OPTIONAL_PAGES + OPTIONAL_REFERENCE_PAGES}
 
 
 def converted_href(value: str) -> str:
@@ -83,6 +85,8 @@ def html_to_wiki(source: Path, title: str) -> str:
 
 
 def render(source_dir: Path, output_dir: Path) -> None:
+    pages = PAGES + [row for row in OPTIONAL_PAGES if (source_dir / row[0]).is_file()]
+    reference_pages = REFERENCE_PAGES + [row for row in OPTIONAL_REFERENCE_PAGES if (source_dir / row[0]).is_file()]
     output_dir.mkdir(parents=True, exist_ok=True)
     home = ('# HandOff User Manual\n\n'
             '**Hit render, go home.**\n\n'
@@ -92,27 +96,27 @@ def render(source_dir: Path, output_dir: Path) -> None:
             'not proposed future features.\n\n'
             'Start with **[Getting started](Getting-started)**, or choose a chapter below.\n\n'
             '## Manual chapters\n\n')
-    for _,slug,label in PAGES:
+    for _,slug,label in pages:
         home += f'- [{label}]({slug})\n'
     home += '\n## Reference tables\n\n'
-    for _,slug,label in REFERENCE_PAGES:
+    for _,slug,label in reference_pages:
         home += f'- [{label}]({slug})\n'
     home += ('\n## Downloads and support\n\n'
-             f'- [Current alpha release (v0.7.51-alpha.1)]({REPOSITORY}/releases/tag/v0.7.51-alpha.1)'
-             f' (or [all releases]({REPOSITORY}/releases))\n'
+             f'- [Current HandOff releases]({REPOSITORY}/releases)\n'
+             f'- [Historical release notes]({REPOSITORY}/blob/main/docs/HISTORICAL_GITHUB_RELEASE_NOTES.md)\n'
              f'- [Repository and project overview]({REPOSITORY})\n'
              f'- [Full offline HTML manual]({REPOSITORY}/blob/main/handoff/manual/MANUAL.html)\n\n'
              'The HTML manual and wiki use the same underlying documentation. The wiki is a **mirror**, '
              'not an additional source of truth.\n')
     (output_dir/'Home.md').write_text(home, encoding='utf-8')
 
-    for name,slug,title in PAGES:
+    for name,slug,title in pages:
         page=source_dir/name
         if not page.is_file():
             raise FileNotFoundError(page)
         (output_dir/f'{slug}.md').write_text(html_to_wiki(page,title), encoding='utf-8')
 
-    for name,slug,title in REFERENCE_PAGES:
+    for name,slug,title in reference_pages:
         page=source_dir/name
         if not page.is_file():
             raise FileNotFoundError(page)
@@ -124,10 +128,10 @@ def render(source_dir: Path, output_dir: Path) -> None:
             encoding='utf-8')
 
     sidebar = '**[HandOff Manual](Home)**\n\n'
-    for _,slug,title in PAGES:
+    for _,slug,title in pages:
         sidebar += f'- [{title}]({slug})\n'
     sidebar += '\n**References**\n\n'
-    for _,slug,title in REFERENCE_PAGES:
+    for _,slug,title in reference_pages:
         sidebar += f'- [{title}]({slug})\n'
     (output_dir/'_Sidebar.md').write_text(sidebar, encoding='utf-8')
     (output_dir/'_Footer.md').write_text(
@@ -135,7 +139,7 @@ def render(source_dir: Path, output_dir: Path) -> None:
         f'[HandOff repository]({REPOSITORY}) · '
         'Generated from source; please report errors in the main repository.\n',
         encoding='utf-8')
-    print(f'Generated {len(PAGES)+len(REFERENCE_PAGES)+3} wiki pages in {output_dir}')
+    print(f'Generated {len(pages)+len(reference_pages)+3} wiki pages in {output_dir}')
 
 
 if __name__ == '__main__':
