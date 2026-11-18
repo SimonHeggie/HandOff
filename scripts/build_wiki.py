@@ -90,10 +90,7 @@ def html_to_wiki(source: Path, title: str) -> str:
     for marker, anchorid in markers.items():
         result = result.replace(marker, f'<a id="{anchorid}"></a>')
     result = re.sub(r'\n{4,}', '\n\n\n', result).strip()
-    return (f'# {title}\n\n'
-            f'> Synced from the [HandOff offline manual]({REPOSITORY}/blob/main/handoff/manual/{source.name}). '
-            f'Keep edits in the source manual; this wiki copy is generated automatically.\n\n'
-            f'{result}\n')
+    return f'# {title}\n\n{result}\n'
 
 
 def render(source_dir: Path, output_dir: Path) -> None:
@@ -102,10 +99,7 @@ def render(source_dir: Path, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     home = ('# HandOff User Manual\n\n'
             '**Hit render, go home.**\n\n'
-            'This wiki is a browsable copy of the [HandOff user manual]('
-            f'{REPOSITORY}/tree/main/handoff/manual), reproduced from the source in the repository. '
-            'It documents the currently implemented compositor-based layered artwork exporter, '
-            'not proposed future features.\n\n'
+            'Documentation for exporting layered artwork, vectors, animation and other assets from Blender.\n\n'
             'Start with **[Getting started](Getting-started)**, or choose a chapter below.\n\n'
             '## Manual chapters\n\n')
     for _,slug,label in pages:
@@ -117,9 +111,7 @@ def render(source_dir: Path, output_dir: Path) -> None:
              f'- [Current HandOff releases]({REPOSITORY}/releases)\n'
              f'- [Historical release notes]({REPOSITORY}/blob/main/docs/HISTORICAL_GITHUB_RELEASE_NOTES.md)\n'
              f'- [Repository and project overview]({REPOSITORY})\n'
-             f'- [Full offline HTML manual]({REPOSITORY}/blob/main/handoff/manual/MANUAL.html)\n\n'
-             'The HTML manual and wiki use the same underlying documentation. The wiki is a **mirror**, '
-             'not an additional source of truth.\n')
+             f'- [Full offline HTML manual]({REPOSITORY}/blob/main/handoff/manual/MANUAL.html)\n')
     (output_dir/'Home.md').write_text(home, encoding='utf-8')
 
     for name,slug,title in pages:
@@ -135,9 +127,7 @@ def render(source_dir: Path, output_dir: Path) -> None:
         original=page.read_text(encoding='utf-8')
         # Wiki pages should not link to relative Git files that do not exist in the wiki.
         original=re.sub(r'\]\(([^)#]+\.(?:md|html))(#[^)]+)?\)', lambda m: ']('+converted_href(m[1]+(m[2] or ''))+')', original)
-        (output_dir/f'{slug}.md').write_text(
-            f'> Synced from [the source reference]({REPOSITORY}/blob/main/handoff/manual/{name}).\n\n'+original,
-            encoding='utf-8')
+        (output_dir/f'{slug}.md').write_text(original, encoding='utf-8')
 
     sidebar = '**[HandOff Manual](Home)**\n\n'
     for _,slug,title in pages:
@@ -147,10 +137,7 @@ def render(source_dir: Path, output_dir: Path) -> None:
         sidebar += f'- [{title}]({slug})\n'
     (output_dir/'_Sidebar.md').write_text(sidebar, encoding='utf-8')
     (output_dir/'_Footer.md').write_text(
-        f'[Source manual]({REPOSITORY}/tree/main/handoff/manual) · '
-        f'[HandOff repository]({REPOSITORY}) · '
-        'Generated from source; please report errors in the main repository.\n',
-        encoding='utf-8')
+        f'[HandOff repository]({REPOSITORY})\n', encoding='utf-8')
     print(f'Generated {len(pages)+len(reference_pages)+3} wiki pages in {output_dir}')
 
 
