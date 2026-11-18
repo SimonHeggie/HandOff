@@ -1,10 +1,21 @@
-# HandOff - User Manual
+# HandOff User Manual
 
-Open [MANUAL.html](MANUAL.html) for the offline manual with topic pages and active navigation.
+Offline HTML pages:
 
-The [Tag compatibility](tags.html) page compares shared functions across Spine, Photoshop Generator and OCA in the original XML registry order.
-The [EXR-style suffixes and blend modes](exr-suffixes.html) page explains HandOff dot directives and links to the full blend-mode matrix.
-The [OpenEXR channels](openexr.html) page covers channel naming and render passes.
+- [Your first export](MANUAL.html)
+- [Choose a format](formats.html)
+- [Collections and layers](groups.html)
+- [Export directives](tags-operations.html)
+- [Layer blend modes](exr-suffixes.html)
+- [Animation (.OCA)](oca.html)
+- [Vector artwork (.SVG)](vectors.html)
+- [Deliver fonts](fonts.html)
+- [Retry and troubleshooting](recovery.html)
+- [PSD/PSB colour and precision](psd.html)
+- [Naming compatibility](tags.html)
+- [Spine naming reference](tags-spine.html)
+- [Photoshop Generator names](generator.html)
+- [OpenEXR channels](openexr.html)
+- [Sources and credits](sources.html)
 
-Detailed compatibility and source attribution are available on the relevant topic pages.
-Detailed text references: [Layer Tags](LAYER_TAGS.md) and [Blend Modes](BLEND_MODES.md).
+The compatibility page compares functions across supported destinations.
