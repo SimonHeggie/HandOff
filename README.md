@@ -2,98 +2,54 @@
 
 **Hit render, go home.**
 
-NOTICE: This is currently experimental software!!! Not yet full production tested. But please feel free to test, report bugs and suggest features.
+**Layered artwork and animation interchange for Blender.** HandOff extends the Compositor's **File Output** node so one Blender project can publish layered documents, editable vector artwork, animation and other production assets. You can configure several destinations on the same node; Blender's normal File Output behaviour is preserved.
 
-**Layered asset interchange and publishing for Blender.** HandOff extends Blender's **Compositor > File Output** node with additional export destinations. From the same render, it can assemble layered artwork, editable vector documents, frame-based OCA animation and other deliverables while retaining Blender's ordinary File Output functionality.
+HandOff is developed by **Simon Heggie** and is currently **experimental alpha software**. Check exported files in their destination applications before using them in production.
 
-Created and maintained by **Simon Heggie**. **Latest published release: [v0.7.51 Alpha 1](https://github.com/SimonHeggie/HandOff/releases/tag/v0.7.51-alpha.1)**. **v0.7.53 Alpha 1 is being prepared on a source-review branch, not yet released.**. This is alpha software; inspect its output before production delivery.
+## What it exports
 
-## Planned v0.7.53 source revision — OCA 1.3 interchange
-
-The [v0.7.53 Alpha 1 release notes](docs/RELEASE_NOTES_v0.7.53-alpha.1.md) describe the uploaded source revision under integration, not a published binary. The new source includes validated canonical OCA projects, source-aware layer identities and safe staging; authored opacity/blending, SVG cels, cloned artwork, nested document references, and precision support. This branch is incomplete until the full supplied source snapshot has been integrated and independently tested.
-
-**Not implemented in this release:** selective frame deduplication, general object-transform curves, 3D bones/weights, native transferable skeletal rigs, Blender-scene reconstruction or VSE exporting. These remain on the roadmap.
-
-See [OCA authoring](handoff/manual/OCA_AUTHORING.md) and the [Wiki](https://github.com/SimonHeggie/HandOff/wiki).
-
-## What the published v0.7.51 release does today
-
-| Destination | Implemented output | Important boundary |
-| --- | --- | --- |
-| **PSD / PSB** | Layered Photoshop-format artwork, Collection-derived groups, supported paint-layer blend modes and colour labels; selected Grease Pencil/Curve/Text content can become native shapes, paths or text | Unsupported artwork uses rendered pixels and, where supported, SVG-linked sources. Vector and editor round-trips are not guaranteed. 32-bit float PSD/PSB is experimental. |
-| **OCA** | Layered still documents; **Render Animation** writes a frame sequence with relative image assets, frame rate and exposure holds | OCA artwork is raster-based here. There is no exported Blender rig, skeletal animation or transform-curve interchange. |
-| **SVG** | A layered SVG with supported editable Grease Pencil strokes, closed 2D Curve paths and live Text; preserves supported grouping, paint and clone relationships | Requires an orthographic render camera and Film Transparent for vector extraction. Unsupported effects/objects use PNG fallbacks. |
-| **PNG / TIFF / JPEG** | Per-input images or a flattened image | JPEG is RGB only. Format-specific bit depths apply. |
-| **OpenEXR** | Additional EXR images, including layered output options | Processing large/multilayer EXRs can be memory-intensive. |
-| **Fonts / Text Assets** | Copies recoverable referenced fonts and writes a `.fonts.json` index with text-object references | The bundled package **does not** include the optional Bfont OpenType/CFF companion; Blender's built-in Bfont may be recovered as PostScript `.pfb`. |
-
-These are available through **Additional Outputs** on a compositor File Output node. The format selector also offers 8/16/32-bit choices where supported; do not assume every destination supports every depth.
-
-## How to use it
-
-1. Install the **release asset** `HandOff-v0.7.51-alpha.1-blender-addon.zip` through Blender's **Edit > Preferences > Add-ons > Install from Disk** and enable **HandOff**. The add-on declares Blender **5.0 or newer** as its minimum; this is not a claim of validation against every later Blender build.
-2. In the **Compositor**, connect the desired image sources to a **File Output** node. Each connected input represents a layer or image contribution. **Input/socket order determines stack order**.
-3. Select that File Output node, open the **Node** tab of the right sidebar, and find **HandOff - Additional Exports**. Add the destinations you need, set paths and options, and enable them.
-4. Use **Check Export Status** before rendering. It reports source Collection inference, hierarchy and tag issues; details are also printed in Blender's terminal.
-5. Use **Render Image (F12)** for a still, or **Render Animation (Ctrl+F12)** for an OCA frame sequence. The regular File Output node continues to work independently.
-6. If a retained render cache exists, **Backend / Recovery > Retry Export (No Render)** can reconvert supported outputs after edits to names, tags or destination settings. **Clear Cache** removes retained jobs without deleting delivered files.
-
-The offline user manual is available from the add-on Preferences (**Open HandOff User Manual**) and in [the repository's manual index](handoff/manual/MANUAL.md).
-
-## Layer structure, directives and interchange
-
-HandOff uses **Blender Collection ancestry** to form document groups, while preserving the order of File Output inputs. Nonconsecutive artwork from one Collection may require separate output-group segments; Check Export Status previews the result.
-
-Authoring directives can be appended to Collection/layer names without altering the source geometry:
-
-| Example | Effect |
+| Destination | Output |
 | --- | --- |
-| `Character.merge` | Merge a group into a raster paint layer |
-| `Guides.ref` | Mark/reference guide artwork (destination behaviour varies) |
-| `FX.ignore` | Omit the corresponding export subtree |
-| `Parts.ungroup` | Promote children without the group container |
-| `Shadows.multiply`, `Glow.add` | Request a supported document blend mode |
+| **PSD / PSB** | Layered Photoshop-format documents with Collection-based groups, supported blend modes and colour labels. Compatible Grease Pencil, Curve and Text artwork can retain editable vector or text representations; unsupported elements are rendered or accompanied by linked SVG artwork where supported. |
+| **OCA** | Layered stills and timed cel animation with frame exposures and portable image assets. Supports eligible Grease Pencil SVG cels, raster alternatives, source-linked clone layers, nested OCA documents and OCA-specific layer/group properties. |
+| **SVG** | Layered vector documents using supported Grease Pencil strokes and fills, Curve paths and live Text, with raster fallbacks for artwork that cannot be represented as vectors. |
+| **PNG / TIFF / JPEG** | Individual layer images or flattened output. |
+| **OpenEXR** | Additional EXR images, including layered output options. |
+| **Fonts / text assets** | Recoverable referenced font files and a metadata index identifying their source text objects. |
 
-Other directives cover initial visibility and exported names, paths and grouping. **Tag Compatibility** offers **No Conversion** (default), **Spine**, **Photoshop Generator**, and **OCA / Krita** mappings. These translate supported document naming/metadata conventions; **Spine compatibility does not mean exporting a `.spine` project, bones or a running Spine rig**. Unsupported conversions are retained or reported rather than silently invented.
+For OCA animation, **Render Animation** exports the frame range as one timed document. Other document destinations currently export still artwork rather than an equivalent editable animation timeline.
 
-References: [Layer tags and format mappings](handoff/manual/LAYER_TAGS.md), [blend modes and approximations](handoff/manual/BLEND_MODES.md), [Collection hierarchy](handoff/manual/groups.html), [Spine PSD directives](handoff/manual/tags-spine.html).
+## Key features
 
-## Vectors, rendering and editability
+- **One render, multiple outputs:** configure independent destinations without replacing Blender's native File Output node.
+- **Organised layers:** derive document groups from Blender Collections, with File Output socket order determining layer stack order. Preserve supported names, visibility, blend modes, colour labels and hierarchy.
+- **Authoring controls:** use supported layer/Collection naming directives for merging, omission, grouping and blending. OCA also provides dedicated View Layer and Collection controls for opacity, exposure opacity, visibility, blending, alpha inheritance and source references.
+- **Editable where possible:** keep supported vectors and text editable, and use rendered artwork when the destination cannot preserve the original source.
+- **Export diagnostics and recovery:** use **Check Export Status** to spot hierarchy and compatibility issues; **Retry Export (No Render)** can rebuild supported outputs from retained cached renders.
 
-For compatible source artwork, the SVG writer projects evaluated **Grease Pencil**, **Curve** and **Text** content into editable vector elements. It supports a defined subset of fills, strokes, Bézier handles, pressure strokes, gradients, text styles and GP modifiers. Some shared GP datablocks are represented using SVG clones. Source relationships can be retained as metadata.
+## Getting started
 
-It is **not** a general converter for every Blender shader or procedural effect. Lighting, masks, complex gradients, 3D objects, non-orthographic projections and unsupported modifiers may be rasterised; approximated blend modes are reported. The PSD/PSB writer can preserve supported native vector/text representations, but some paths require linked SVG sources plus a raster preview. Target editors may interpret those differently.
+1. Download the **installable add-on ZIP** from [GitHub Releases](https://github.com/SimonHeggie/HandOff/releases), **not** GitHub's automatically generated source ZIP.
+2. In Blender, choose **Edit → Preferences → Add-ons → Install from Disk** and install the ZIP. Enable **HandOff**. The add-on targets Blender 5.0 and newer; check the release documentation for supported Python/platform dependencies.
+3. In the **Compositor**, connect the desired image outputs to a **File Output** node. Input order determines exported layer order.
+4. Select the node and open the **Node** sidebar → **HandOff - Additional Exports**. Add and configure your output destinations.
+5. Run **Check Export Status**, then use **F12** for a still or **Ctrl+F12** for an OCA animation sequence.
 
-For specifics and conversion limits, see [SVG and vector artwork](handoff/manual/vectors.html) and [the feature matrix](handoff/compatibility/vector_features.csv). Do not infer universal Photoshop, PhotoCraft, Krita or Inkscape round-trip compatibility from the availability of an output format.
+When upgrading from the older Comp-IO / `blend_psd_tools` add-on, disable and uninstall the old add-on first to avoid duplicate render handlers. Back up important `.blend` files before upgrading.
 
-## Installation, upgrades and dependencies
+## Current limitations
 
-- Download the ZIP attached to the **[GitHub release](https://github.com/SimonHeggie/HandOff/releases/tag/v0.7.51-alpha.1)**, **not** GitHub's automatically generated source ZIP. The source checkout omits six pinned Pillow wheel binaries that are included in the installable package.
-- The bundled Pillow wheels are for **CPython 3.13** on their supported platforms. Blender builds using another Python ABI (including 3.14) need compatible dependencies; the package cannot be assumed to work unchanged.
-- **When upgrading from Comp-IO / `blend_psd_tools`: disable and uninstall the old add-on first.** `handoff` is a different Python package, so enabling both may register duplicate render handlers. Old Blender RNA properties and `blend_psd.*` operator IDs are deliberately retained for saved-file and script compatibility. Some package-specific preferences may need setting again.
-- Save a backup of working Blender scenes before migration. See [migration details](docs/RENAME_MIGRATION.md) and the [wheel manifest](docs/PILLOW_WHEELS.md).
+- HandOff does **not** yet transfer Blender armatures, bone weights or general object-transform animation into editable 2D rigs. OCA animation is currently built from artwork exposures and supported reference metadata.
+- Vector conversion covers specific Grease Pencil, Curve and Text features; arbitrary 3D materials, lighting, effects and unsupported geometry can require raster fallbacks. The SVG vector path requires an orthographic camera and transparent film.
+- Blend modes, colour handling, native vectors and linked artwork can be interpreted differently by Photoshop, Krita, SVG editors and OCA importers. Support for an output format does not guarantee a lossless editing round trip.
 
-## Release status and known limits
+## Documentation and support
 
-**v0.7.51 Alpha 1 is principally the v0.7.50 functionality with a product/package rename and legacy-data compatibility handling.** It is **not** a new Blender-to-Blender document exporter. Tests and ZIP validation have been run, but a complete interactive Blender integration pass is still outstanding. The optional Bfont-compatible `.otf` asset is absent; the documented fallback is to recover the original built-in `.pfb` where possible.
-
-See [accurate release notes](docs/RELEASE_NOTES_v0.7.51-alpha.1.md) and the preserved [development history](docs/DEVELOPMENT_HISTORY.md).
-
-## Roadmap and product domains
-
-These are **planned directions**, not features claimed for this release.
-
-- **Art Source:** editable assets, animation, rigging and source-document interchange. Next: editable Blender-to-Blender handoff, followed by evaluated animation isolation and capture.
-- **Deployment:** game/engine delivery, packaging, publishing, server deployment and web services.
-- **Marketing:** promotional output and content deliveries.
-
-Advanced OCO, Rive and Spine rig-format work is deferred until Blender-native handoff and animation isolation/capture are reliable.
-
-
-## Preserved release history
-
-The complete text of previous public release announcements is retained in [Historical GitHub Release Notes](docs/HISTORICAL_GITHUB_RELEASE_NOTES.md), alongside [development history](docs/DEVELOPMENT_HISTORY.md). This archive remains accessible if superseded alpha release entries are removed from GitHub's Releases page.
+- [User manual](handoff/manual/MANUAL.md) · [GitHub Wiki](https://github.com/SimonHeggie/HandOff/wiki)
+- [OCA authoring](handoff/manual/OCA_AUTHORING.md) · [OCA export controls](handoff/manual/OCA_CONTROLS.md) · [OCA vector artwork](handoff/manual/OCA_VECTORS.md)
+- [Layer directives](handoff/manual/LAYER_TAGS.md) · [Blend mode compatibility](handoff/manual/BLEND_MODES.md)
+- [Releases and change history](https://github.com/SimonHeggie/HandOff/releases) · [Report an issue](https://github.com/SimonHeggie/HandOff/issues)
 
 ## Licensing and credits
 
-HandOff is authored by **Simon Heggie**. The vendored `psd_tools` library retains its [MIT licence notice](handoff/PSD_TOOLS_LICENSE.txt); **the project as a whole has not yet been assigned a licence in this repository**. Third-party notices and technical reference links are available in the [manual](handoff/manual/README.md). Do not assume the vendored-library licence applies to all HandOff source code.
+Created and maintained by **Simon Heggie**. The bundled `psd_tools` dependency carries its own [MIT licence](handoff/PSD_TOOLS_LICENSE.txt); this **does not establish a licence for the HandOff project as a whole**. See the [manual](handoff/manual/README.md) for additional credits and third-party notices.
