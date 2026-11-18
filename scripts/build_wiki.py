@@ -134,7 +134,7 @@ def render(source_dir: Path, output_dir: Path) -> None:
             raise FileNotFoundError(page)
         original=page.read_text(encoding='utf-8')
         # Wiki pages should not link to relative Git files that do not exist in the wiki.
-        original=re.sub(r'\]\(([^)#]+\.md)(#[^)]+)?\)', lambda m: ']('+converted_href(m[1]+(m[2] or ''))+')', original)
+        original=re.sub(r'\]\(([^)#]+\.(?:md|html))(#[^)]+)?\)', lambda m: ']('+converted_href(m[1]+(m[2] or ''))+')', original)
         (output_dir/f'{slug}.md').write_text(
             f'> Synced from [the source reference]({REPOSITORY}/blob/main/handoff/manual/{name}).\n\n'+original,
             encoding='utf-8')
