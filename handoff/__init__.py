@@ -3,7 +3,7 @@
 bl_info = {
     'name': 'HandOff',
     'author': 'Simon Heggie',
-    'version': (0, 7, 51),
+    'version': (0, 7, 53),
     'blender': (5, 0, 0),
     'location': 'Compositor > File Output > Node sidebar',
     'description': 'Automated asset production, interchange and deployment for Blender',
