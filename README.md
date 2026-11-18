@@ -6,9 +6,17 @@ NOTICE: This is currently experimental software!!! Not yet full production teste
 
 **Layered asset interchange and publishing for Blender.** HandOff extends Blender's **Compositor > File Output** node with additional export destinations. From the same render, it can assemble layered artwork, editable vector documents, frame-based OCA animation and other deliverables while retaining Blender's ordinary File Output functionality.
 
-Created and maintained by **Simon Heggie**. **Current release: [v0.7.51 Alpha 1](https://github.com/SimonHeggie/HandOff/releases/tag/v0.7.51-alpha.1)**. This is alpha software; inspect its output before production delivery.
+Created and maintained by **Simon Heggie**. **Latest published release: [v0.7.51 Alpha 1](https://github.com/SimonHeggie/HandOff/releases/tag/v0.7.51-alpha.1)**. **v0.7.53 Alpha 1 is being prepared on a source-review branch, not yet released.**. This is alpha software; inspect its output before production delivery.
 
-## What it does today
+## Planned v0.7.53 source revision — OCA 1.3 interchange
+
+The [v0.7.53 Alpha 1 release notes](docs/RELEASE_NOTES_v0.7.53-alpha.1.md) describe the uploaded source revision under integration, not a published binary. The new source includes validated canonical OCA projects, source-aware layer identities and safe staging; authored opacity/blending, SVG cels, cloned artwork, nested document references, and precision support. This branch is incomplete until the full supplied source snapshot has been integrated and independently tested.
+
+**Not implemented in this release:** selective frame deduplication, general object-transform curves, 3D bones/weights, native transferable skeletal rigs, Blender-scene reconstruction or VSE exporting. These remain on the roadmap.
+
+See [OCA authoring](handoff/manual/OCA_AUTHORING.md) and the [Wiki](https://github.com/SimonHeggie/HandOff/wiki).
+
+## What the published v0.7.51 release does today
 
 | Destination | Implemented output | Important boundary |
 | --- | --- | --- |

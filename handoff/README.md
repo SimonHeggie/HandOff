@@ -4,7 +4,11 @@
 
 By **Simon Heggie**. This folder is the Python add-on package installed as `handoff`. HandOff extends Blender's compositor **File Output** node with configurable, independent **Additional Outputs**. The existing native File Output still operates normally.
 
-**Current build:** v0.7.51 Alpha 1. [Download the installable ZIP](https://github.com/SimonHeggie/HandOff/releases/tag/v0.7.51-alpha.1). The GitHub source archive omits Pillow binaries and is not the complete offline installation package.
+**Latest published build:** v0.7.51 Alpha 1. **In-progress source revision:** v0.7.53 Alpha 1 (not yet published). [Download the installable ZIP](https://github.com/SimonHeggie/HandOff/releases/tag/v0.7.51-alpha.1). The GitHub source archive omits Pillow binaries and is not the complete offline installation package.
+
+## Upcoming OCA 1.3 additions in the v0.7.53 source revision
+
+Validated canonical project folders, source-aware identities, clean portable assets, authored visibility/opacity/blend/group controls, Grease Pencil SVG cels, verified reference clones, nested documents and exposure retiming. These changes are pending source synchronization and validation. No object/bone/weight transform interchange is claimed. [Release notes](../docs/RELEASE_NOTES_v0.7.53-alpha.1.md).
 
 ## Quick start
 

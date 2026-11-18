@@ -16,7 +16,7 @@ OVERVIEW = (
     "server deployment, marketing outputs and web services."
 )
 STATUS = "Alpha - under active development"
-VERSION_INFO = (0, 7, 51)
+VERSION_INFO = (0, 7, 53)
 VERSION = '.'.join(map(str, VERSION_INFO))
 LOG_PREFIX = '[' + NAME + ']'
 

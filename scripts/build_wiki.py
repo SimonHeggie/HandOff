@@ -36,7 +36,7 @@ REFERENCE_PAGES = [
     ('BLEND_MODES.md', 'Blend-mode-reference', 'Blend-mode reference'),
 ]
 OPTIONAL_PAGES = [('oca.html', 'OCA-export', 'OCA export')]
-OPTIONAL_REFERENCE_PAGES = [('OCA_CONTROLS.md', 'OCA-controls', 'OCA controls'), ('OCA_VECTORS.md', 'OCA-vector-artwork', 'OCA vector artwork')]
+OPTIONAL_REFERENCE_PAGES = [('OCA_CONTROLS.md', 'OCA-controls', 'OCA controls'), ('OCA_VECTORS.md', 'OCA-vector-artwork', 'OCA vector artwork'), ('OCA_AUTHORING.md', 'OCA-authoring', 'OCA authoring')]
 LINKS = {name:slug for name,slug,_ in PAGES + REFERENCE_PAGES + OPTIONAL_PAGES + OPTIONAL_REFERENCE_PAGES}
 
 
