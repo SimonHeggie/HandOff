@@ -32,8 +32,8 @@ jobs:
           gh release view "$TAG" --json body --jq '.body' > published-notes.md
           python - <<'PY'
           from pathlib import Path
-          source = Path('docs/RELEASE_NOTES_v0.7.53-alpha.1.md').read_text().rstrip('\\n')
-          published = Path('published-notes.md').read_text().rstrip('\\n')
+          source = Path('docs/RELEASE_NOTES_v0.7.53-alpha.1.md').read_text().rstrip()
+          published = Path('published-notes.md').read_text().rstrip()
           assert source == published, 'Published release notes do not match the repository source'
           print('Published release notes match the repository source')
           PY
