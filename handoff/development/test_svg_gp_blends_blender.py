@@ -1,7 +1,7 @@
 """Blender 5.3 regression: opt-in blends through deferred hybrid SVG export.
 
 Use --factory-startup --disable-autoexec. All artwork and snapshots are private
-fixtures. HANDOFF_TEST_OUTPUT may retain files for testing in an SVG reader.
+fixtures. COMP_IO_TEST_OUTPUT may retain files for testing in an SVG reader.
 """
 import json
 import os
@@ -89,10 +89,10 @@ def run(folder):
         assert ok,reason
         root = ET.parse(path).getroot()
         assert root.get(hybrid.LAYER_BLENDS)=='1'
-        group = next(n for n in root.iter() if n.get('data-handoff-object')==obj.name)
+        group = next(n for n in root.iter() if n.get('data-compio-object')==obj.name)
         assert group.get('style')=='isolation:isolate'
-        assert [n.get('data-handoff-layer') for n in group]==['Base','Blend layer']
-        assert group[1].get('data-handoff-gp-blend')==mode
+        assert [n.get('data-compio-layer') for n in group]==['Base','Blend layer']
+        assert group[1].get('data-compio-gp-blend')==mode
         assert group[1].get('style')=='mix-blend-mode:'+{'MULTIPLY':'multiply','HARDLIGHT':'hard-light','ADD':'screen','SUBTRACT':'difference','DIVIDE':'color-dodge'}[mode]
         assert not list(root.iter(hybrid.SVG+'image'))
         assert any(n.get(hybrid.INK+'label')==case.name for n in root.iter())
@@ -119,7 +119,7 @@ def run(folder):
     assert hybrid.resolve_hybrid_source(path)
     root = ET.parse(path).getroot()
     assert root.get(hybrid.LAYER_BLENDS)=='1'
-    assert len([n for n in root.iter() if n.get('data-handoff-gp-blend')=='MULTIPLY'])==1
+    assert len([n for n in root.iter() if n.get('data-compio-gp-blend')=='MULTIPLY'])==1
     assert len(list(root.iter(hybrid.SVG+'image')))==1
     assert hybrid.retained_hybrid(path,editable_layer_blends=True)
     try:
@@ -133,12 +133,12 @@ def run(folder):
 
 
 try:
-    if os.environ.get('HANDOFF_TEST_OUTPUT'):
-        folder = Path(os.environ['HANDOFF_TEST_OUTPUT'])
+    if os.environ.get('COMP_IO_TEST_OUTPUT'):
+        folder = Path(os.environ['COMP_IO_TEST_OUTPUT'])
         folder.mkdir(parents=True,exist_ok=True)
         run(folder)
     else:
-        with tempfile.TemporaryDirectory(prefix='handoff-blend-test-') as directory:
+        with tempfile.TemporaryDirectory(prefix='compio-blend-test-') as directory:
             run(Path(directory))
 except BaseException:
     traceback.print_exc()

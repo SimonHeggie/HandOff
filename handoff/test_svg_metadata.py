@@ -17,7 +17,7 @@ class SourceMetadata(unittest.TestCase):
         self.assertTrue(clone.get('id').startswith('object-copy-'))
         self.assertNotIn('copy-copy',clone.get('id'))
         self.assertTrue(any(i.startswith('object-original-') for i in ids))
-        self.assertFalse(any(i.startswith('handoff-') for i in ids))
+        self.assertFalse(any(i.startswith('compio-') for i in ids))
         self.assertFalse(list(a.iter(SVG+'script')))
         self.assertFalse(any(key.startswith('on') for node in a.iter() for key in node.attrib))
 

@@ -237,7 +237,7 @@ def write_font_output(job, *, logger=print):
         # Never overwrite or remove a source font, even if a destination is
         # configured beside it. Existing unrelated files are never cleaned.
         if source is None or source.resolve() != target.resolve():
-            fd, temp = tempfile.mkstemp(prefix='.handoff-font-', dir=assets)
+            fd, temp = tempfile.mkstemp(prefix='.compio-font-', dir=assets)
             try:
                 with os.fdopen(fd,'wb') as f: f.write(data)
                 os.replace(temp, target)
@@ -254,7 +254,7 @@ def write_font_output(job, *, logger=print):
             converted=assets/(name+'-'+converted_hash[:10]+'.otf')
             if converted.exists() and converted.read_bytes()!=compatible:
                 raise FileExistsError('Refusing to replace an unrelated font file: '+str(converted))
-            fd,temp=tempfile.mkstemp(prefix='.handoff-font-',dir=assets)
+            fd,temp=tempfile.mkstemp(prefix='.compio-font-',dir=assets)
             try:
                 with os.fdopen(fd,'wb') as f:f.write(compatible)
                 os.replace(temp,converted)
@@ -265,7 +265,7 @@ def write_font_output(job, *, logger=print):
         logger(f'{LOG_PREFIX} FONT:', resolved['family'], '|', resolved.get('notice','copied'), '|', target)
     result = dict(version=1, complete=not unresolved, fonts=fonts,
                   text_objects=job.get('text_objects', []), unresolved=unresolved)
-    fd, temp = tempfile.mkstemp(prefix='.handoff-font-manifest-', dir=dest.parent)
+    fd, temp = tempfile.mkstemp(prefix='.compio-font-manifest-', dir=dest.parent)
     try:
         with os.fdopen(fd,'w',encoding='utf-8') as f: json.dump(result,f,indent=2,ensure_ascii=False)
         os.replace(temp,dest)

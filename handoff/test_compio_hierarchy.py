@@ -1,6 +1,6 @@
 """Quick Blender-free tests for HandOff Collection and PSD group handling.
 
-Run: python3 test_handoff_hierarchy.py
+Run: python3 test_compio_hierarchy.py
 """
 import tempfile
 import unittest
@@ -365,7 +365,7 @@ class TestMergeFileOutputs(unittest.TestCase):
             rgba=np.asarray(layer.topil())
             self.assertAlmostEqual(rgba[0,0,0],128,delta=3)
             self.assertAlmostEqual(rgba[0,0,1],127,delta=3)
-            job.update(dest=str(root/'merged.oca'), format='OCA',frame=1)
+            job.update(dest=str(root/'merged.oca'), format='OCA',frame=1, oca_options=dict(padding=0))
             assemble_oca(job,inputs)
             obj=json.loads((root/'merged.oca').read_text())
             self.assertEqual(obj['layers'][1]['name'],'Headgear')

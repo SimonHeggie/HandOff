@@ -4,6 +4,7 @@ Offline HTML pages:
 
 - [Getting started](MANUAL.html)
 - [Collection hierarchy](groups.html)
+- [OCA artwork](oca.html)
 - [PSD/PSB colour](psd.html)
 - [SVG / Vector Artwork](vectors.html)
 - [Tag compatibility](tags.html)
@@ -16,4 +17,4 @@ Offline HTML pages:
 
 The compatibility page compares functions across supported destinations.
 
-For OCA and SVG destinations, **Trim Whitespace** is enabled by default on the additional output: cropped frame/PNG fallback bounds preserve document alignment. OCA asset names do not include a layer-order prefix; OCA stores its own layer order.
+[OCA controls](OCA_CONTROLS.md) | [OCA vector artwork](OCA_VECTORS.md)

@@ -15,7 +15,7 @@ sys.path[:0]=[str(ROOT.parent),str(ROOT)]
 def run():
     import bpy
     import numpy as np
-    import handoff as addon
+    import blend_psd_tools as addon
     import importlib
     addon._font_delivery.FONTS_API_VERSION=0
     addon._font_delivery.user_font_directory=None
@@ -27,7 +27,7 @@ def run():
     from svg_hybrid import export_hybrid_svg
     assert bpy.app.version[:2]==(5,3)
     addon.register()
-    out=Path(os.environ.get('HANDOFF_TEST_OUT') or tempfile.mkdtemp(prefix='handoff-bfont-'))
+    out=Path(os.environ.get('COMP_IO_TEST_OUT') or tempfile.mkdtemp(prefix='compio-bfont-'))
     out.mkdir(parents=True,exist_ok=True)
     scene=bpy.context.scene
     for obj in list(bpy.data.objects):bpy.data.objects.remove(obj,do_unlink=True)
@@ -68,7 +68,7 @@ def run():
     ok,reason=export_hybrid_svg(scene,bpy.context.view_layer,out/'Bfont-live.svg');assert ok,reason
     svg=ET.parse(out/'Bfont-live.svg').getroot();ns='{http://www.w3.org/2000/svg}'
     text=next(svg.iter(ns+'text'));assert text.get('font-family')=='Bfont'
-    assert text.get('data-handoff-font-substituted') is None
+    assert text.get('data-compio-font-substituted') is None
     assert not list(svg.iter(ns+'style')) and not list(svg.iter(ns+'font'))
     scene.render.engine='CYCLES';scene.cycles.samples=16;scene.cycles.device='CPU'
     scene.render.use_compositing=False

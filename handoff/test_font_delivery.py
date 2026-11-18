@@ -78,4 +78,4 @@ class FontDeliveryTests(unittest.TestCase):
                 with self.assertRaises(KeyboardInterrupt):
                     write_font_output(dict(dest=str(p/'Shot.fonts.json'),fonts=[dict(name='Font',file=str(source))]))
             self.assertEqual(source.read_bytes(),before)
-            self.assertFalse(list(p.rglob('.handoff-font-*')))
+            self.assertFalse(list(p.rglob('.compio-font-*')))

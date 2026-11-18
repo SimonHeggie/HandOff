@@ -1,19 +1,20 @@
 """HandOff public identity. Keep all user-facing product naming here.
 
-The installed Blender package is ``handoff``. Historical projects may still
-contain old custom-property and metadata keys, which remain readable.
+The installable package is ``handoff``; legacy RNA/operator identifiers remain
+compatible with existing saved Blender projects.
 """
 NAME = "HandOff"
-SUBTITLE = "Automated asset production, interchange and deployment for Blender"
-TAGLINE = "Hit render, go home."
+SUBTITLE = "Layered Asset Interchange & Publishing for Blender"
+TAGLINE = "One render. Every deliverable."
 SHORT_DESCRIPTION = (
-    "Prepare layered artwork, animation, asset packages and production "
-    "deliverables automatically when rendering from Blender."
+    "Render once; publish layered PSD/PSB, OCA, Spine-ready artwork, "
+    "image sequences and production assets from Blender's compositor."
 )
 OVERVIEW = (
-    f"{NAME} is a Blender add-on for producing editable art sources and "
-    "repeatable asset deliveries. The long-term scope includes game and "
-    "server deployment, marketing outputs and web services."
+    f"{NAME} is a free, open-source Blender add-on extending the compositor "
+    "with layered document interchange and repeatable asset publishing. "
+    "Prepare editable artwork for animators, developers, illustrators and "
+    "marketing teams without manually rebuilding every deliverable."
 )
 STATUS = "Alpha - under active development"
 VERSION_INFO = (0, 7, 53)

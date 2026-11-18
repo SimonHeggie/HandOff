@@ -5,7 +5,7 @@ from functools import wraps
 import sys
 import time
 
-_CURRENT = ContextVar('handoff_export_performance', default=None)
+_CURRENT = ContextVar('compio_export_performance', default=None)
 
 
 @contextmanager

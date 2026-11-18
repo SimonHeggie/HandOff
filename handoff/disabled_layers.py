@@ -24,9 +24,9 @@ def source_state(tree, socket, scene, trace):
         if layer is None:
             continue
         library = getattr(origin, 'library', None)
-        owner = (origin.get('_handoff_sync_scene_id') or origin.get('_compio_sync_scene_id')) or (
+        owner = origin.get('_compio_sync_scene_id') or (
             str(getattr(library, 'filepath', '')) + '/' + origin.name)
-        identities.append((str(owner), str((layer.get('_handoff_view_layer_id') or layer.get('_compio_view_layer_id')) or name)))
+        identities.append((str(owner), str(layer.get('_compio_view_layer_id') or name)))
         if not layer.use:
             disabled.append(origin.name + '/' + name)
     # Existing sync UUIDs survive View Layer renames. Unsynced sources use
@@ -62,7 +62,7 @@ def held_path(job, entry):
     slug = entry['slug']
     if Path(slug).name != slug:
         raise ValueError('Invalid layer cache slug')
-    return Path(job['dir']) / ('.handoff-held-' + slug + job.get('extension', '.png'))
+    return Path(job['dir']) / ('.compio-held-' + slug + job.get('extension', '.png'))
 
 
 def _compatible(job, previous):

@@ -6,7 +6,7 @@ bl_info = {
     'version': (0, 7, 53),
     'blender': (5, 0, 0),
     'location': 'Compositor > File Output > Node sidebar',
-    'description': 'Automated asset production, interchange and deployment for Blender',
+    'description': 'One render, every deliverable: layered PSD/PSB, OCA, Spine-ready artwork and production image exports',
     'category': 'Compositing',
 }
 
@@ -641,6 +641,9 @@ def _format_update(self, context):
         self.use_groups = True
         self.flatten = False
         self.bake_svg_png = False
+    if self.format=='OCA' and not self.get('_oca_layout_initialized',False):
+        self.oca_layout='PROJECT'
+        self['_oca_layout_initialized']=True
 
 
 
@@ -693,8 +696,29 @@ class AdditionalExport(PropertyGroup):
         ('ZIP', 'ZIP', 'Lossless ZIP compression'),
         ('ZIP_WITH_PREDICTION', 'ZIP with Prediction', 'Lossless ZIP with sample prediction'),
         ('RAW', 'Uncompressed', 'Store full uncompressed pixel channels')])
-    trim_empty_pixels: BoolProperty(name='Trim Whitespace', default=True,
-        description='OCA frames and SVG raster fallbacks: crop only all-zero RGBA borders, retaining hidden RGB and the original document positions. No change to editable SVG paths')
+    # OCA-only publishing controls. Keep trim_empty_pixels as the persisted
+    # identifier used by earlier saved projects; the label is destination-local.
+    oca_ignore_hidden_layers: BoolProperty(name='Ignore hidden layers', default=False,
+        description='Omit hidden source layers and Collections, including hidden-group descendants')
+    oca_ignore_background: BoolProperty(name='Ignore background layer', default=True,
+        description='Omit only source View Layers explicitly marked with custom property handoff_oca_background=True; names and layer order are never used')
+    trim_empty_pixels: BoolProperty(name='Trim whitespace', default=True,
+        description='OCA only: crop transparent alpha borders, preserving frame positions; hidden RGB does not prevent trimming')
+    oca_write_json: BoolProperty(name='Write Spine JSON', default=False,
+        description='Write an optional artwork/attachment companion using the OCA images and draw order; no skeletal rig conversion')
+    oca_write_template: BoolProperty(name='Write template image', default=False,
+        description='Write a PNG composite of currently visible eligible OCA artwork')
+    oca_scale: FloatProperty(name='Scale', default=100.0, min=0.000001, max=400.0,
+        subtype='PERCENTAGE', precision=2, description='Scale assets, canvas and positions together. Raster enlargement resamples existing pixels; it does not add detail. SVG remains vector artwork')
+    oca_padding: IntProperty(name='Padding', default=1, min=0,
+        description='Transparent pixels around each OCA image after cropping and scaling; does not move its centre')
+    oca_keep_png: BoolProperty(name='Keep Alternative Artwork', default=False,
+        description='Optional companion source: keep the unselected PNG/SVG representation too. Off publishes only the selected artwork. Alternatives use custom frame metadata, not a standard OCA attachment selector')
+    oca_half_float: BoolProperty(name='Half-float EXR (F16)', default=False,
+        description='Store floating-point OCA artwork as half-float EXR; full-float render caches remain reusable. Applies to 32-bit destinations only')
+    oca_layout: EnumProperty(name='OCA Layout',default='LEGACY',items=[
+        ('PROJECT','OCA Project Folder','Standard .oca directory containing one root OCA document, metadata and artwork'),
+        ('LEGACY','Legacy Document + Assets','Retain the existing OCA JSON file with its sibling artwork directory')])
     flatten: BoolProperty(name='Flatten Image', default=False,
         description='Flatten layers into one image; disables group hierarchy where the format supports flattening')
     use_groups: BoolProperty(name='Use Groups', default=False,
@@ -940,7 +964,7 @@ def prepare(scene):
                 # and colour conversion belong in the isolated worker process.
                 vector_by_index = {}
                 vector_fallback_reasons = {}
-                if item.format in ('SVG','PSD','PSB') and not item.bake_svg_png and not item.flatten:
+                if (item.format == 'OCA' or (item.format in ('SVG','PSD','PSB') and not item.bake_svg_png)) and not item.flatten:
                     for vec_i, (_, source_socket) in enumerate(raw):
                         if manifest[vec_i].get('render_disabled'):
                             vector_fallback_reasons[vec_i] = 'Source View Layer disabled for rendering'
@@ -974,7 +998,19 @@ def prepare(scene):
                                                           else 'User selected Rasterise Vector Artwork'),
                                            collection_colors=source_collection_colors(per_item_paths[i], bpy.data.collections, theme_collection_colors(bpy)))
                                 for i, entry in enumerate(manifest)]
+                if item.format == 'OCA':
+                    from .oca_controls import capture_source,input_identity
+                    linked_inputs=[s for s in node.inputs if s.is_linked]
+                    for entry, (_, socket),destination_socket in zip(job_manifest, raw,linked_inputs):
+                        entry.update(capture_source(tree, socket, scene, entry['collection_path'], source_render_layers))
+                        entry['oca_source_id']=input_identity(node,destination_socket)
+                from .gp_raster_cache import source_plan
+                for entry in job_manifest:
+                    if entry.get('vector_svg'):
+                        plan=source_plan(entry['vector_svg'])
+                        if plan:entry['gp_render_source']=plan
                 jobs.append({
+                    'allow_gp_cache_repair': True,
                     'node_name': node.name,
                     'export_index': next(i for i, entry in enumerate(node.blend_artwork_exports) if entry == item),
                     'cache_kind': kind,
@@ -996,7 +1032,6 @@ def prepare(scene):
                     'overwrite': True,
                     'save_as_render': bool(item.save_as_render),
                     'bake_svg_png': bool(item.bake_svg_png),
-                    'trim_empty_pixels': bool(item.trim_empty_pixels),
                     'svg_flat_text_material': bool(item.svg_flat_text_material),
                     'svg_editable_layer_blends': True,
                     'font_directory': bpy.path.abspath(item.font_directory),
@@ -1007,6 +1042,16 @@ def prepare(scene):
                     'frame': int(scene.frame_current),
                     'frame_rate': float(scene.render.fps) / max(0.0001, float(scene.render.fps_base)),
                 })
+                if item.format == 'OCA':
+                    from .oca_controls import capture_options
+                    jobs[-1]['oca_options'] = capture_options(item)
+                    jobs[-1]['trim_empty_pixels'] = bool(item.trim_empty_pixels)
+                    jobs[-1]['oca_keep_png'] = bool(item.oca_keep_png)
+                    jobs[-1]['oca_half_float'] = bool(item.oca_half_float)
+                    jobs[-1]['oca_layout']=item.oca_layout
+                    jobs[-1]['oca_background_color']=list(scene.handoff_oca_background_color)
+                    jobs[-1]['origin_app_version']=bpy.app.version_string
+                    jobs[-1]['oca_metadata']={key:scene.get(key) for key in ('author','copyright','license','licenseLong','licenseURL','description','created') if isinstance(scene.get(key),str)}
         print(f'{LOG_PREFIX} JOB QUEUE:', len(jobs),
               [(j['format'], j['dest']) for j in jobs])
         if skipped:
@@ -1217,8 +1262,9 @@ def dispatch(scene):
     if any(len(frames)>1 for frames in sess.get('oca_frames',{}).values()):
         # Other formats still publish only the final frame. Refresh their
         # deferred vectors/text at that frame, without changing the render.
-        sess['jobs']=refresh_cached_jobs(scene,{'jobs':sess['jobs']})['jobs']
-        for job in sess['jobs']:job['cache_frame']=job['frame']
+        sess['jobs']=refresh_cached_jobs(scene,{'jobs':sess['jobs']},allow_pending_vectors=True)['jobs']
+        for job in sess['jobs']:
+            if 'frame' in job: job['cache_frame']=job['frame']
     for job in sess['jobs']:
         frames=sess.get('oca_frames',{}).get((job.get('node_name'),job.get('export_index')),[])
         if job['format']=='OCA' and len(frames)>1:
@@ -1290,7 +1336,11 @@ def capture_oca_frame(scene, *args):
         key=(job.get('node_name'),job.get('export_index'))
         frames=sess['oca_frames'].setdefault(key,[])
         if frames and frames[-1]['frame']==job['frame']:continue
-        frames.append(dict(job,cache_frame=job['frame']))
+        captured=dict(job,cache_frame=job['frame'])
+        from .oca_vectors import capture_frame_sources
+        from .oca_authoring import capture_frame
+        captured['manifest']=capture_frame_sources([capture_frame(e) for e in job['manifest']],job['frame'])
+        frames.append(captured)
 
 
 @persistent
@@ -1400,7 +1450,7 @@ class OT_remove(Operator):
         return {'FINISHED'}
 
 
-def refresh_cached_jobs(scene, data):
+def refresh_cached_jobs(scene, data, *, allow_pending_vectors=False):
     """Refresh *metadata*, never pixels, from the current Blender scene.
 
     Important: earlier releases simply reran the old jobs.json. This made a
@@ -1421,6 +1471,7 @@ def refresh_cached_jobs(scene, data):
     print(f'{LOG_PREFIX} Retry: refreshing collection mapping per source socket')
     refreshed = 0
     for job in updated.get('jobs', []):
+        job['allow_gp_cache_repair']=bool(allow_pending_vectors)
         matches = nodes.get(job.get('node_name'), [])
         node, node_tree = matches[0] if len(matches) == 1 else (None, None)
         if node is None:
@@ -1473,7 +1524,6 @@ def refresh_cached_jobs(scene, data):
         job['overwrite'] = True
         job['save_as_render'] = bool(current.save_as_render)
         job['bake_svg_png'] = bool(current.bake_svg_png)
-        job['trim_empty_pixels'] = bool(current.trim_empty_pixels)
         job['svg_flat_text_material'] = bool(current.svg_flat_text_material)
         job['svg_editable_layer_blends'] = True
         job['font_directory'] = bpy.path.abspath(current.font_directory)
@@ -1484,6 +1534,15 @@ def refresh_cached_jobs(scene, data):
         job.pop('psd_link_svg_fallbacks',None)
         job.pop('psd_target',None)
         job['psd_compression'] = current.psd_compression
+        if current.format == 'OCA': job['oca_keep_png'] = bool(current.oca_keep_png)
+        if current.format == 'OCA':
+            job['oca_layout']=current.oca_layout
+            job['oca_background_color']=list(scene.handoff_oca_background_color)
+            job['oca_half_float']=bool(current.oca_half_float)
+        if current.format == 'OCA':
+            from .oca_controls import capture_options
+            job['oca_options'] = capture_options(current)
+            job['trim_empty_pixels'] = bool(current.trim_empty_pixels)
         job['export_index'] = index
         job['canvas_size'] = _canvas_size(scene)
         raw = connected(node_tree, node)
@@ -1510,14 +1569,29 @@ def refresh_cached_jobs(scene, data):
             entry.setdefault('render_was_disabled', bool(entry.get('render_disabled')))
             entry.update(_source_render_state(node_tree, raw[i][1], scene))
             entry.pop('render_placeholder', None)
-            if current.format in ('SVG','PSD','PSB'):
+            if current.format == 'OCA':
+                from .oca_controls import capture_source,input_identity
+                entry.update(capture_source(node_tree, raw[i][1], scene, entry['collection_path'], source_render_layers))
+                entry['oca_source_id']=input_identity(node,[s for s in node.inputs if s.is_linked][i])
+            if current.format in ('SVG','PSD','PSB','OCA'):
                 retained_vector = entry.get('vector_svg', '')
                 entry['vector_svg'] = ''
                 entry['vector_reason'] = 'User selected Rasterise Vector Artwork' if current.bake_svg_png else ''
                 if entry.get('render_disabled'):
                     entry['vector_reason'] = 'Source View Layer disabled for rendering'
                     continue
-                if current.format in ('SVG','PSD','PSB') and not current.bake_svg_png and not current.flatten:
+                if allow_pending_vectors and retained_vector:
+                    # Animation has just finished rendering; its queued SVG has
+                    # intentionally not been evaluated by the worker yet.
+                    from .oca_vectors import capture_frame_sources, DEFERRED
+                    from xml.etree import ElementTree as ET
+                    pending=Path(retained_vector)
+                    if pending.is_file() and ET.parse(pending).getroot().get(DEFERRED):
+                        entry['vector_svg']=capture_frame_sources(
+                            [dict(vector_svg=retained_vector)],scene.frame_current)[0]['vector_svg']
+                        entry['vector_reason']='SVG evaluation queued for final animation frame'
+                        continue
+                if (current.format == 'OCA' or (current.format in ('SVG','PSD','PSB') and not current.bake_svg_png)) and not current.flatten:
                     src_scene, src_layer, reason = _svg_source.direct_render_image_source(
                         node_tree, raw[i][1], scene, source_render_layers)
                     if src_scene is not None and src_layer is not None:
@@ -1618,6 +1692,9 @@ def refresh_cached_jobs(scene, data):
     updated['jobs'] = [x for x in updated.get('jobs',[]) if not x.pop('_disabled_on_retry',False)]
     if not updated['jobs']:
         raise ValueError('All retained export destinations are disabled or missing.')
+    from .oca_authoring import refresh_frames
+    for job in updated['jobs']:
+        if job.get('format')=='OCA' and job.get('oca_frames'):refresh_frames(job)
     print(f'{LOG_PREFIX} Retry: refreshed {refreshed}/{len(updated["jobs"])} jobs; cached images unchanged')
     return updated
 
@@ -1879,7 +1956,7 @@ def _draw_diagnostics(layout, context, node):
             result = json.loads(value)
             return result if isinstance(result, type(default)) else default
         except (ValueError, TypeError):return default
-    sync = saved((node.get('_handoff_view_layer_sync_report') or node.get('_compio_view_layer_sync_report', '{}')), {})
+    sync = saved(node.get('_compio_view_layer_sync_report', '{}'), {})
     if sync:
         box = layout.box();box.label(text='Input Sync')
         box.label(text=f'Inputs: {len(sync.get("added", []))} added, {len(sync.get("renamed", []))} renamed, {len(sync.get("removed", []))} removed')
@@ -1961,8 +2038,6 @@ class PanelNode(Panel):
                 fonts.prop(item,'font_directory')
             if item.format == 'FONTS':
                 continue
-            if item.format in ('OCA', 'SVG'):
-                formatbox.prop(item, 'trim_empty_pixels', text='Trim Whitespace')
             if item.format == 'SVG':
                 bake_row = formatbox.row(align=True)
                 bake_row.enabled = not item.flatten
@@ -1973,6 +2048,15 @@ class PanelNode(Panel):
                 formatbox.prop(item, 'svg_root_mode', text='Root Group')
                 if item.svg_root_mode == 'NAMED':
                     formatbox.prop(item, 'svg_root_name', text='Root Name')
+            if item.format == 'OCA':
+                controls = formatbox.box()
+                controls.prop(item,'oca_layout')
+                for prop in ('oca_ignore_hidden_layers', 'oca_ignore_background', 'trim_empty_pixels',
+                             'oca_write_json', 'oca_write_template', 'oca_scale', 'oca_padding'):
+                    controls.prop(item, prop)
+                controls.prop(item, 'bake_svg_png', text='Rasterise Vector Layers')
+                controls.prop(item, 'oca_keep_png')
+                if item.depth=='32':controls.prop(item,'oca_half_float')
             if item.format in ('PSD', 'PSB'):
                 formatbox.prop(item, 'psd_compression')
                 raster_row=formatbox.row();raster_row.enabled=not item.flatten
@@ -2085,7 +2169,7 @@ class OT_open_documentation(Operator):
 
 
 class ImageNodePlusPreferences(AddonPreferences):
-    bl_idname = __package__ or 'handoff'
+    bl_idname = __package__ or 'blend_psd_tools'
 
     def draw(self, context):
         column = self.layout.column(align=True)
@@ -2097,7 +2181,11 @@ CLASSES = (Settings, AdditionalExport, OT_sync_view_layers, OT_add, OT_remove, O
 
 
 def register():
+    from .package_compat import disable_legacy
+    disable_legacy(__package__)
     from .conversion_policy import capabilities
+    from . import oca_authoring
+    oca_authoring.register()
     capabilities.cache_clear()
     for cl in CLASSES:
         bpy.utils.register_class(cl)
@@ -2140,7 +2228,7 @@ def register():
         (bpy.app.handlers.load_post, after_load),
     ):
         # Blender can keep persistent handlers from an earlier installed ZIP.
-        # Remove previous HandOff functions with the same role, even if they
+        # Remove previous package functions with the same role, even if they
         # are different Python function objects after an in-process reload.
         for old in list(handlers):
             if (getattr(old, '__module__', '') == __name__ and
@@ -2158,6 +2246,8 @@ def register():
 
 
 def unregister():
+    from . import oca_authoring
+    oca_authoring.unregister()
     _stop_chime()
     if bpy.app.timers.is_registered(_migrate_after_registration):
         bpy.app.timers.unregister(_migrate_after_registration)

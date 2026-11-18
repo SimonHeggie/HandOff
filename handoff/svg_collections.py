@@ -1,13 +1,4 @@
 """Source collection paths and SVG grouping without changing paint order."""
-
-try:
-    from .svg_compat import normalize_metadata
-except ImportError:
-    try:
-        from svg_compat import normalize_metadata
-    except ImportError:
-        def normalize_metadata(root):
-            return root
 from xml.etree import ElementTree as ET
 import json
 
@@ -53,7 +44,6 @@ def group_svg(root, components):
         from layer_stack import build_stack, tags
         from svg_document import _blend, _highlight
         from group_blends import promoted_blend, effective_layer_mode
-    normalize_metadata(root)
     children = list(root)
     if len(children) != len(components):
         raise ValueError('SVG object metadata does not match its paint elements')
@@ -77,11 +67,11 @@ def group_svg(root, components):
         for node in reversed(nodes):
             if node['kind'] == 'group':
                 group_index += 1
-                el = ET.SubElement(parent, SVG+'g', {'id':f'handoff-collection-{group_index}',
+                el = ET.SubElement(parent, SVG+'g', {'id':f'compio-collection-{group_index}',
                     INK+'label':node['name'], INK+'groupmode':'layer',
-                    'data-handoff-collection':'/'.join(node['path']),
-                    'data-handoff-collection-parts':json.dumps(node['path']),
-                    'data-handoff-collection-name':node['raw']})
+                    'data-compio-collection':'/'.join(node['path']),
+                    'data-compio-collection-parts':json.dumps(node['path']),
+                    'data-compio-collection-name':node['raw']})
                 _highlight(el,node.get('sheet_color') or 'NO_COLOR')
                 mode = promoted_blend(node)
                 _blend(el,mode or 'normal')
@@ -103,13 +93,13 @@ def group_svg(root, components):
 def unwrap_raster_groups(root):
     for parent in list(root.iter()):
         for index, child in enumerate(list(parent)):
-            if child.tag != SVG+'g' or child.get('data-handoff-raster-request') is None:
+            if child.tag != SVG+'g' or child.get('data-compio-raster-request') is None:
                 continue
             image = child.find(SVG+'image')
             if image is not None and len(child) == 1:
                 image.set('id',child.get('id','')+'-image')
                 image.set(INK+'label',child.get(INK+'label','Rendered artwork'))
-                image.set('data-handoff-raster-request',child.get('data-handoff-raster-request'))
+                image.set('data-compio-raster-request',child.get('data-compio-raster-request'))
                 parent.remove(child);parent.insert(index,image)
 
 
@@ -124,8 +114,8 @@ def consolidate_collections(root):
         return [min(b[0] for b in boxes),min(b[1] for b in boxes),
                 max(b[2] for b in boxes),max(b[3] for b in boxes)] if boxes else [0,0,0,0]
     def bounds(el):
-        if el.get('data-handoff-bounds'):
-            return json.loads(el.get('data-handoff-bounds'))
+        if el.get('data-compio-bounds'):
+            return json.loads(el.get('data-compio-bounds'))
         if el.tag==SVG+'g':return union([bounds(c) for c in el])
         return None
     def overlap(a,b):
@@ -134,7 +124,7 @@ def consolidate_collections(root):
     for parent in reversed(list(root.iter())):
         children=list(parent);by_key={}
         for child in children:
-            key=child.get('data-handoff-collection-parts')
+            key=child.get('data-compio-collection-parts')
             if key:by_key.setdefault(key,[]).append(child)
         for key,segments in by_key.items():
             if len(segments)<2:continue
@@ -145,9 +135,9 @@ def consolidate_collections(root):
             if any(segments[0].get(k) for k in paint_keys):continue
             own=union([bounds(s) for s in segments])
             first,last=children.index(segments[0]),children.index(segments[-1])
-            others=[c for c in children[first:last+1] if c.get('data-handoff-collection-parts')!=key]
+            others=[c for c in children[first:last+1] if c.get('data-compio-collection-parts')!=key]
             if any(overlap(own,bounds(other)) for other in others):continue
             for segment in segments[1:]:
                 segments[0].extend(list(segment));parent.remove(segment);merged+=1
-            segments[0].set(INK+'label',strip_tags(segments[0].get('data-handoff-collection-name','Collection')))
+            segments[0].set(INK+'label',strip_tags(segments[0].get('data-compio-collection-name','Collection')))
     return merged

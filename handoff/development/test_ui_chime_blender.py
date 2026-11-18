@@ -31,7 +31,7 @@ def run():
     import bpy
     import aud
     import numpy as np
-    import handoff as addon
+    import blend_psd_tools as addon
     assert bpy.app.version[:2] == (5, 3)
     addon.register()
     scene = bpy.context.scene
@@ -93,7 +93,7 @@ def run():
     node = tree.nodes.new('CompositorNodeOutputFile'); tree.nodes.active = node
     report = dict(added=[], renamed=['Alias -> Layer'], removed=[],
                   warnings=['Parent collection diagnostics should be collapsed'])
-    node['_handoff_view_layer_sync_report'] = json.dumps(report)
+    node['_compio_view_layer_sync_report'] = json.dumps(report)
     assert not node.blend_psd_show_sync_details
     context = NS(scene=scene, space_data=NS(type='NODE_EDITOR', tree_type='CompositorNodeTree', edit_tree=tree))
     calls = []
@@ -105,7 +105,7 @@ def run():
     node.blend_psd_show_diagnostics = True
     calls.clear(); addon.PanelNode.draw(panel, context)
     assert any('diagnostics should be collapsed' in kw.get('text', '') for kind, kw in calls)
-    assert json.loads(node['_handoff_view_layer_sync_report']) == report
+    assert json.loads(node['_compio_view_layer_sync_report']) == report
     # One PSD writer for all editors. Old saved flags must never expose a
     # target selector, a locked checkbox or an internal validation message.
     legacy = node.blend_artwork_exports.add(); legacy.format='PSD'; legacy.enabled=True
@@ -117,7 +117,7 @@ def run():
     assert not any('awaits editor validation' in kw.get('text','') for kind,kw in calls)
     # Font destination previews identify both the actual font folder and index.
     item = node.blend_artwork_exports.add(); item.format = 'FONTS'; item.enabled = True
-    item.path = '/tmp/handoff-font-preview'; item.relative_path = False
+    item.path = '/tmp/compio-font-preview'; item.relative_path = False
     node.file_name = 'Project'
     calls.clear()
     with patch.object(addon, 'missing', return_value=''):
@@ -137,7 +137,7 @@ def run():
     assert any('Held render diagnostics' in kw.get('text','') for kind,kw in calls)
     # Round-trip old/new scene settings without ever opening a user project.
     scene.blend_psd_chime_volume = .42
-    with tempfile.TemporaryDirectory(prefix='handoff-chime-settings-') as folder:
+    with tempfile.TemporaryDirectory(prefix='compio-chime-settings-') as folder:
         file = Path(folder)/'settings.blend'
         bpy.data.libraries.write(str(file), {scene})
         bpy.ops.wm.open_mainfile(filepath=str(file), load_ui=False, use_scripts=False)

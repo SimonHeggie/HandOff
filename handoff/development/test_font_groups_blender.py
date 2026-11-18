@@ -16,13 +16,13 @@ SVG='{http://www.w3.org/2000/svg}'
 
 def run():
     import bpy
-    import handoff as addon
+    import blend_psd_tools as addon
     from font_delivery import system_font_directory, user_font_directory, font_names
     from builtin_font import embedded_bfont
     from psd_worker import run as worker
     addon.register()
     assert bpy.app.version[:2]==(5,3)
-    directory=Path(os.environ.get('HANDOFF_TEST_OUT') or tempfile.mkdtemp(prefix='handoff-font-groups-'))
+    directory=Path(os.environ.get('COMP_IO_TEST_OUT') or tempfile.mkdtemp(prefix='compio-font-groups-'))
     directory.mkdir(parents=True,exist_ok=True)
     company=directory/'company-fonts';company.mkdir(exist_ok=True)
     original_font=next(Path(system_font_directory()).rglob('*.ttf'))
@@ -89,7 +89,7 @@ def run():
     bpy.ops.wm.open_mainfile(filepath=str(recovery),load_ui=False,use_scripts=False)
     scene=bpy.context.scene;tree=scene.compositing_node_group
     assert tree.nodes.get('__blend_psd_TEMP_0123456789') is not None
-    assert not any(n.get('_handoff_temporary',False) for n in tree.nodes)
+    assert not any(n.get('_compio_temporary',False) for n in tree.nodes)
     print('RECOVERY_PASS',flush=True)
     # Real rendering exercises the handlers; capture dispatch without starting
     # a second process so we can inspect the complete retained manifest.
@@ -97,7 +97,7 @@ def run():
     addon.launch_worker=lambda s,m,l,skipped=False:manifests.append(Path(m))
     bpy.ops.render.render(write_still=False)
     assert manifests
-    assert not any(n.get('_handoff_temporary',False) for n in tree.nodes)
+    assert not any(n.get('_compio_temporary',False) for n in tree.nodes)
     assert worker(manifests[-1])==0
     data=json.loads(manifests[-1].read_text())
     font_jobs=[j for j in data['jobs'] if j['format']=='FONTS'];assert len(font_jobs)==2
@@ -114,7 +114,7 @@ def run():
     root=ET.parse(svg_job['dest']).getroot();parents={child:parent for parent in root.iter() for child in parent}
     texts=list(root.iter(SVG+'text'));assert len(texts)==2
     assert {t.get('font-family') for t in texts}=={real_family,'Bfont'}
-    assert {parents[t].get('data-handoff-collection') for t in texts}=={'Case / One','Case Two'}
+    assert {parents[t].get('data-compio-collection') for t in texts}=={'Case / One','Case Two'}
     assert not list((manifests[-1].parent/'vectors').glob('*.blend'))
     refreshed=addon.refresh_cached_jobs(scene,data)
     assert len([j for j in refreshed['jobs'] if j['format']=='FONTS'])==2,'Retry duplicated font outputs'

@@ -16,7 +16,7 @@ def ensure_render_tempdir(directory, *, logger=print):
     missing = not path.is_dir()
     try:
         path.mkdir(parents=True, exist_ok=True)
-        with tempfile.TemporaryFile(dir=path, prefix='handoff-write-check-') as probe:
+        with tempfile.TemporaryFile(dir=path, prefix='compio-write-check-') as probe:
             probe.write(b'write-test')
             probe.flush()
     except OSError as exc:

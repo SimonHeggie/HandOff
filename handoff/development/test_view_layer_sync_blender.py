@@ -173,7 +173,7 @@ def run():
     assert r.use_custom_color
     assert max(abs(a-b) for a,b in zip(r.color, theme_collection_colors(bpy)[4])) < 1e-6
     # Ensure the registered UI action supports a single undo step.
-    import handoff as addon
+    import blend_psd_tools as addon
     addon.register()
     assert 'UNDO' in addon.OT_sync_view_layers.bl_options
     assert hasattr(bpy.ops.blend_psd, 'sync_view_layers')

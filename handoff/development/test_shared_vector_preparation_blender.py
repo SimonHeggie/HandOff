@@ -6,7 +6,7 @@ sys.path[:0]=[str(ROOT.parent),str(ROOT)]
 
 def run():
  import bpy
- import handoff as addon
+ import blend_psd_tools as addon
  from svg_hybrid import resolve_hybrid_source
  addon.register();scene=bpy.context.scene
  for obj in list(bpy.data.objects):bpy.data.objects.remove(obj,do_unlink=True)
@@ -26,7 +26,7 @@ def run():
  output=tree.nodes.new('CompositorNodeOutputFile')
  while len(output.file_output_items):output.file_output_items.remove(output.file_output_items[0])
  output.file_output_items.new('RGBA','Drawing');tree.links.new(source.outputs['Image'],output.inputs[0])
- with tempfile.TemporaryDirectory(prefix='handoff-shared-vector-') as folder:
+ with tempfile.TemporaryDirectory(prefix='compio-shared-vector-') as folder:
   output.directory=folder
   for fmt,depth in [('PSD','8'),('PSD','16'),('SVG','8')]:
    item=output.blend_artwork_exports.add();item.format=fmt;item.depth=depth;item.path=folder;item.relative_path=False

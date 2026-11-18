@@ -12,7 +12,7 @@ sys.path[:0]=[str(ROOT.parent),str(ROOT)]
 
 def run():
  import bpy
- import handoff as addon
+ import blend_psd_tools as addon
  from pillow_loader import ensure_pillow
  ensure_pillow()
  from PIL import Image

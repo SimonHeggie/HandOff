@@ -3,15 +3,6 @@
 Names describe artwork; UUIDs identify it. This is provenance for a future
 importer, not an implementation of SVG/PSD round-trip updates or scripts.
 """
-
-try:
-    from .svg_compat import normalize_metadata
-except ImportError:
-    try:
-        from svg_compat import normalize_metadata
-    except ImportError:
-        def normalize_metadata(root):
-            return root
 import hashlib
 import json
 import re
@@ -96,30 +87,27 @@ def remap_references(elements,mapping):
 
 def qualify_imports(elements,scope):
     """Disambiguate a reused source without stacking opaque ID prefixes."""
-    for element in elements:
-        normalize_metadata(element)
     mapping={}
     for child in elements:
         for node in child.iter():
             old=node.get('id')
             if old:
-                label=node.get(INK+'label') or node.get('data-handoff-object') or old
+                label=node.get(INK+'label') or node.get('data-compio-object') or old
                 mapping[old]=identifier(node.tag.split('}')[-1],label,(scope,old))
     remap_references(elements,mapping)
 
 def annotate(root,scope='',manifest=None):
     """Normalize IDs/references and append descriptive, non-executable metadata."""
-    normalize_metadata(root)
     mapping={};records=[];counts={}
     def walk(node,owner='',drawing='',route=(),owner_name=''):
         owner=node.get(PREFIX+'object-id') or owner
-        owner_name=node.get(PREFIX+'object-name') or node.get('data-handoff-object') or owner_name
-        drawing=node.get('data-handoff-layer') or drawing
-        label=node.get(INK+'label') or node.get('data-handoff-object') or drawing or 'Artwork'
+        owner_name=node.get(PREFIX+'object-name') or node.get('data-compio-object') or owner_name
+        drawing=node.get('data-compio-layer') or drawing
+        label=node.get(INK+'label') or node.get('data-compio-object') or drawing or 'Artwork'
         tag=node.tag.split('}')[-1]
-        role=node.get('data-handoff-role') or tag
-        if node.get('data-handoff-object'):
-            role='object';label=node.get('data-handoff-object')
+        role=node.get('data-compio-role') or tag
+        if node.get('data-compio-object'):
+            role='object';label=node.get('data-compio-object')
         elif tag=='g':role='group' if node.get(INK+'groupmode')=='layer' else 'layer'
         if owner and tag in ('path','text','use','image'):
             node.set(PREFIX+'owner-id',owner);node.set(PREFIX+'owner-name',owner_name)

@@ -17,7 +17,7 @@ sys.path[:0] = [str(ROOT.parent), str(ROOT)]
 
 def run():
     import bpy
-    import handoff as addon
+    import blend_psd_tools as addon
     assert bpy.app.version[:2] == (5,3)
     addon.register()
     scene = bpy.context.scene
@@ -34,7 +34,7 @@ def run():
     source = tree.nodes.new('CompositorNodeRLayers')
     source.scene = scene
     source.layer = bpy.context.view_layer.name
-    with tempfile.TemporaryDirectory(prefix='handoff-temp-recovery-') as folder:
+    with tempfile.TemporaryDirectory(prefix='compio-temp-recovery-') as folder:
         addon.create_companion(tree, NS(location=NS(x=0,y=0)), Path(folder),
                                [dict(name='Combined',socket=source.outputs['Image'])], 'PNG8')
         session = Path(bpy.app.tempdir)

@@ -103,7 +103,7 @@ def find_inputs(job):
                 continue
             entry = dict(entry, vector_svg='', render_placeholder=True)
             notice(job, entry['name'] + ': no compatible previous render; blank placeholder used')
-            path = folder / ('.handoff-disabled-' + str(index) + extension)
+            path = folder / ('.compio-disabled-' + str(index) + extension)
             if extension == '.png':
                 transparent_cache(path, size, 16 if job.get('cache_kind') == 'PNG16' or job.get('depth') == 16 else 8)
             else:
@@ -576,18 +576,10 @@ def safe_component(text):
     return text or 'Layer'
 
 
-# OCA stores application-defined label indices, not hexadecimal colours.
-# We preserve the eight conventional Blender/PSD colour names as indices 1..8;
-# importers can interpret their own palettes differently (per OCA spec).
-_OCA_COLOUR_LABELS = {
-    'RED': 1, 'ORANGE': 2, 'YELLOW': 3, 'GREEN': 4,
-    'BLUE': 5, 'VIOLET': 6, 'MAGENTA': 7, 'GRAY': 8,
-}
-
-
 def oca_label(colour):
-    """OCA -1 is unlabelled; group and paint layers use the same mapping."""
-    return _OCA_COLOUR_LABELS.get(str(colour or '').upper(), -1)
+    # Existing reference-installation palette; PSD mapping stays untouched.
+    return {'RED':1,'ORANGE':2,'YELLOW':3,'GREEN':4,'BLUE':5,
+            'VIOLET':6,'MAGENTA':7,'GRAY':8}.get(str(colour or '').upper(), -1)
 
 
 def make_oca_layer(parts, mode, path_relative, width, height, depth, frame, idx, reference=False, label=-1):
@@ -596,15 +588,15 @@ def make_oca_layer(parts, mode, path_relative, width, height, depth, frame, idx,
         'name': parts[-1], 'id': identifier, 'type': 'paintlayer',
         'animated': False, 'fileType': 'exr' if depth == 32 else 'png',
         'frames': [{
-            'name': safe_component(parts[-1]) + '_' + str(frame).zfill(5),
+            'name': safe_component(parts[-1]) + '_' + str(frame),
             'id': str(uuid.uuid5(uuid.NAMESPACE_URL, identifier + ':' + str(frame))),
             'fileName': path_relative, 'frameNumber': frame,
-            'opacity': 1.0, 'position': [width // 2, height // 2],
+            'opacity': 1.0, 'position': [width / 2, height / 2],
             'width': width, 'height': height, 'duration': 1, 'meta': {},
         }],
         'childLayers': [], 'blendingMode': OCA_BLENDS.get(mode, 'normal'),
-        'inheritAlpha': False, 'position': [width // 2, height // 2],
-        'width': width, 'height': height, 'label': int(label), 'opacity': 1.0,
+        'inheritAlpha': False, 'position': [width / 2, height / 2],
+        'width': width, 'height': height, 'label': label, 'opacity': 1.0,
         'visible': not reference, 'passThrough': False, 'reference': bool(reference), 'meta': {},
     }
 
@@ -613,6 +605,11 @@ def assemble_oca(job, inputs):
     import numpy as np
     ensure_pillow()
     from PIL import Image
+    from oca_controls import options, annotate_stack, check_merge_visibility, merged_visibility
+    from oca_images import load as load_oca, process, save as save_oca, dimensions
+    from oca_companions import write_companions, composite_stack
+    settings = options(job)
+    from oca_project import component as oca_component
     dest = Path(job['dest'])
     if dest.suffix.lower() != '.oca':
         dest = dest.with_suffix('.oca')
@@ -622,7 +619,9 @@ def assemble_oca(job, inputs):
         raise ValueError('OCA cache must be PNG for U8/U16 or EXR for F32')
     if dest.exists() and not job['overwrite']:
         raise FileExistsError('Overwrite disabled for ' + str(dest))
-    if depth == 32:
+    if not inputs:
+        width, height = map(int, job['canvas_size'])
+    elif depth == 32:
         rgba = read_rgba(inputs[0][1])
         height, width = rgba.shape[:2]
         del rgba
@@ -635,31 +634,31 @@ def assemble_oca(job, inputs):
     if assets.exists() and not job['overwrite']:
         raise FileExistsError('Overwrite disabled for existing OCA assets ' + str(assets))
     staging = dest.parent / ('.' + name + '.oca-staging-' + uuid.uuid4().hex[:7])
-    if job.get('flatten'):
-        import numpy as np
-        flat = merge_layers(inputs, depth=depth)
-        staging.mkdir(parents=True, exist_ok=True)
-        flatten_file = staging / ('Flattened.exr' if depth == 32 else 'Flattened.png')
-        if depth == 8:
-            pic = Image.fromarray((np.clip(flat, 0, 1) * 255 + 0.5).astype(np.uint8), 'RGBA')
-            pic.save(flatten_file)
-        else:
-            write_blender_image(flatten_file, flat, depth)
-        inputs = [({'name': 'Flattened', 'slug': 'Flattened'}, flatten_file)]
+    document_width, document_height = dimensions(width, height, settings['scale'])
     root_layers = []
     dest.parent.mkdir(parents=True, exist_ok=True)
     staging.mkdir(parents=True, exist_ok=True)
     path_taken = set()
     try:
-        stack = build_stack(prepared_entries(inputs, job['hierarchy'] == 'GROUPS'))
-        collapse_merged_groups(stack,
-                               lambda item: read_rgba(item['source'], source_depth=depth),
-                               (width, height))
+        stack = annotate_stack(build_stack(prepared_entries(inputs, job['hierarchy'] == 'GROUPS')), settings)
+        if job.get('flatten'):
+            if any(not entry.get('oca_visible', True) for entry, _ in inputs):
+                notice(job, 'OCA Flatten Image composes visible artwork only; hidden sources are not revealed')
+            flat = composite_stack(stack, (width, height), depth)
+            stack['children'] = [dict(kind='layer', name='Flattened', oca_visible=True,
+                item=dict(entry=dict(name='Flattened'), pixels=flat, source=inputs[0][1] if inputs else None,
+                          parts=['Flattened'], flags=set(), mode='normal'))]
+        else:
+            import copy
+            check_merge_visibility(stack)
+            before = copy.deepcopy(stack)
+            collapse_merged_groups(stack, lambda item: load_oca(item['source'], depth), (width, height))
+            merged_visibility(before, stack)
         leaf_counter = 0
         def add_oca_children(branch, dest_list, current_folder=(), parent_blend=None):
             nonlocal leaf_counter
-            # OCA layer arrays are bottom-to-top, including group children.
-            # Reversed stack traversal preserves the authored paint order.
+            # OCA was previously stored bottom -> top. Retain that convention
+            # while ensuring contiguous groups are not merged across gaps.
             for child in reversed(branch['children']):
                 if child['kind'] == 'group':
                     path = current_folder + (child['name'],)
@@ -670,11 +669,13 @@ def assemble_oca(job, inputs):
                         'type': 'grouplayer', 'animated': False, 'fileType': 'png',
                         'frames': [], 'childLayers': [], 'blendingMode': OCA_BLENDS[group_mode] if group_mode else 'normal',
                         'passThrough': not bool(group_mode), 'inheritAlpha': False,
-                        'position': [width//2, height//2],
-                        'width': width, 'height': height, 'label': oca_label(child.get('sheet_color')), 'opacity': 1.,
-                        'visible': not bool(tags(child['raw']) & {'ref','reference'}),
+                        'position': [document_width/2, document_height/2],
+                        'width': document_width, 'height': document_height, 'label': oca_label(child.get('sheet_color')), 'opacity': 1.,
+                        'visible': child.get('oca_visible', True) and not bool(tags(child['raw']) & {'ref','reference'}),
                         'reference': bool(tags(child['raw']) & {'ref','reference'}), 'meta': {},
                     }
+                    obj['meta']['handoff']={'sourceIdentity':'group:'+ '/'.join(child.get('path',path)),
+                        'autoPromotedBlend':group_mode or ''}
                     dest_list.append(obj)
                     add_oca_children(child, obj['childLayers'], path, group_mode)
                     continue
@@ -682,73 +683,64 @@ def assemble_oca(job, inputs):
                 entry, source = item['entry'], item['source']
                 name_base = child['name']
                 leaf_counter += 1
-                # OCA's JSON arrays own layer order. Only the temporal frame
-                # number belongs in the filename. Disambiguate genuinely
-                # colliding names, including case-insensitive file systems.
-                folder = [safe_component(x) for x in current_folder]
-                stem = safe_component(name_base)
-                number = str(frame).zfill(5)
-                duplicate = 1
+                # Array order owns stacking. Only the animation frame belongs in the name.
+                folder = [oca_component(x) for x in current_folder]
+                stem = oca_component(name_base); duplicate = 1
                 while True:
                     label = stem if duplicate == 1 else f'{stem}-{duplicate}'
-                    candidate = '/'.join([*folder, f'{label}_{number}{ext}'])
+                    candidate = '/'.join([*folder, f'{label}_{str(frame).zfill(5)}{ext}'])
                     key = candidate.casefold()
                     if key not in path_taken:
-                        path_taken.add(key)
-                        break
+                        path_taken.add(key); break
                     duplicate += 1
                 target = staging / candidate
                 target.parent.mkdir(parents=True, exist_ok=True)
-                if item.get('pixels') is not None:
-                    pixels = item['pixels']
-                    if depth == 8:
-                        Image.fromarray((np.clip(pixels, 0, 1)*255+.5).astype(np.uint8), 'RGBA').save(target)
-                    else:
-                        write_blender_image(target, pixels, depth)
+                pixels = item.get('pixels')
+                if pixels is None:
+                    pixels = load_oca(source, depth)
+                processed, centre = process(pixels, settings)
+                if processed is not None:
+                    save_oca(target, processed, depth, source,half_float=bool(job.get('oca_half_float',False)))
                 else:
-                    shutil.copyfile(source, target)
-                # Keep the OCA canvas/layer size intact. Frames can have
-                # independent cropped bounds and centered positions.
-                left = top = 0
-                cropped_width, cropped_height = width, height
-                if job.get('trim_empty_pixels', True):
-                    if depth in (8, 16):
-                        from raster_trim import crop_png_file
-                        left, top, cropped_width, cropped_height = crop_png_file(target)
-                    else:
-                        from raster_bounds import crop_rgba
-                        pixels = read_rgba(target)
-                        clipped, left, top = crop_rgba(pixels)
-                        cropped_height, cropped_width = clipped.shape[:2]
-                        if (left, top, cropped_width, cropped_height) != (0, 0, width, height):
-                            write_blender_image(target, clipped, depth)
+                    path_taken.remove(key)
                 rel = (Path(name) / candidate).as_posix()
                 parts = [*current_folder, name_base]
                 is_ref = bool(item.get('flags', set()) & {'ref', 'reference'})
-                if entry.get('render_placeholder'):
-                    notice(job, entry['name'] + ': disabled for rendering; hidden blank OCA placeholder created')
                 layer = make_oca_layer(parts, effective_layer_mode(item, parent_blend), rel,
-                                       width, height, depth, frame, leaf_counter, reference=is_ref,
+                                       document_width, document_height, depth, frame, leaf_counter, reference=is_ref,
                                        label=oca_label(item.get('inherited_color')))
                 cel = layer['frames'][0]
-                cel['position'] = [left + cropped_width / 2, top + cropped_height / 2]
-                cel['width'], cel['height'] = cropped_width, cropped_height
+                layer['meta']['handoff']={'sourceIdentity':str(entry.get('oca_source_id') or entry.get('source_identity') or
+                    (('merged:'+ '/'.join((*current_folder,name_base))) if item.get('merged') else
+                     entry.get('source_view_layer','')+'|'+entry.get('collection_path','')+'|'+entry.get('name',name_base))),
+                    'sourceName':entry.get('name',name_base),'sourceBlend':item.get('mode','normal')}
+                if processed is None:
+                    cel.update(name='_blank', fileName='', width=0, height=0, position=[0,0])
+                else:
+                    cel.update(width=processed.shape[1], height=processed.shape[0], position=list(centre))
+                if entry.get('vector_svg') and not item.get('merged'):
+                    from oca_vectors import publish
+                    publish(job, entry, layer, target, staging, processed, centre, (width, height))
+                elif entry.get('vector_reason') and not job.get('flatten'):
+                    print('OCA RASTER:', entry['name'], '|', entry['vector_reason'], flush=True)
+                layer['visible'] = child.get('oca_visible', True) and not is_ref
                 if entry.get('render_placeholder'):
                     layer['visible'] = False
                 dest_list.append(layer)
         add_oca_children(stack, root_layers)
         data = {
             'name': name, 'frameRate': float(job.get('frame_rate', 24.)),
-            'width': width, 'height': height, 'startTime': frame,
-            'endTime': frame+1, 'colorDepth': {8:'U8',16:'U16',32:'F32'}[depth],
+            'width': document_width, 'height': document_height, 'startTime': frame,
+            'endTime': frame+1, 'colorDepth': 'F16' if depth==32 and job.get('oca_half_float') else {8:'U8',16:'U16',32:'F32'}[depth],
             'backgroundColor': [0,0,0,0], 'layers': root_layers, 'ocaVersion': '1.3.0',
         }
+        write_companions(job, data, staging)
         manifest = dest.with_name(dest.name + '.writing')
         manifest.write_text(json.dumps(data, indent=4, ensure_ascii=False), encoding='utf-8')
         # Validation catches out-of-sync paths before touching prior deliverables.
         test = json.loads(manifest.read_text(encoding='utf-8'))
         if not test['layers']:
-            raise ValueError('OCA has no image layers')
+            notice(job, 'OCA has no eligible layers after destination visibility/background filtering')
         old_assets = assets.with_name(assets.name + '.old-' + uuid.uuid4().hex[:7])
         if assets.exists():
             assets.rename(old_assets)
@@ -847,15 +839,26 @@ def assemble(job):
     if job.get('format') == 'FONTS':
         from font_delivery import write_font_output
         return write_font_output(job)
+    if job.get('format')=='OCA' and not job.get('_oca_internal'):
+        from oca_project import publish
+        return publish(job,assemble)
     if job.get('format')=='OCA' and job.get('oca_frames'):
         from oca_sequence import assemble_oca_sequence
         return assemble_oca_sequence(job,assemble)
-    source_inputs = find_inputs(job)
+    if job.get('format') == 'OCA':
+        from oca_controls import options, eligible
+        settings = options(job)
+        source_job = dict(job, manifest=[entry for entry in job['manifest'] if eligible(entry, settings)])
+        source_inputs = find_inputs(source_job) if source_job['manifest'] else []
+    else:
+        source_inputs = find_inputs(job)
+    from gp_raster_cache import repair
+    repair(job,source_inputs)
     # Apply .ignore to the actual pixel-layer selection BEFORE every writer,
     # including flattened images and files with Use Groups disabled.
     keep = prepared_entries(source_inputs, use_groups=False)
     inputs = [(x['entry'], x['source']) for x in keep]
-    if not inputs:
+    if not inputs and not (job.get('format') == 'OCA' and not source_inputs):
         raise ValueError('Every layer was excluded by .ignore; no additional output was overwritten. Change the collection tag or choose other inputs.')
     print(f'Included {len(inputs)}/{len(source_inputs)} image layers after .ignore filtering', flush=True)
     fmt = job.get('format', 'PSD')

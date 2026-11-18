@@ -40,9 +40,9 @@ def _gp_layer_blend_attrs(layer):
         raise VectorFallback(f'Grease Pencil {mode} has no supported SVG layer blend')
     if GP_SVG_BLENDS[mode] == 'normal':
         return ''
-    approximation = (f' data-handoff-blend-approximation="{GP_SVG_BLENDS[mode]}"'
+    approximation = (f' data-compio-blend-approximation="{GP_SVG_BLENDS[mode]}"'
                      if mode in GP_APPROXIMATE_BLENDS else '')
-    return (f' data-handoff-gp-blend="{mode}"{approximation}'
+    return (f' data-compio-gp-blend="{mode}"{approximation}'
             f' style="mix-blend-mode:{GP_SVG_BLENDS[mode]}"')
 
 
@@ -105,8 +105,8 @@ def _outline_style_key(stroke):
 def _stroke_path_markup(element_id, label, paths, style):
     """A compound stroke stays one editable Inkscape path per style run."""
     color, opacity, width = style
-    return (f'<path id="handoff-gp-{element_id}" inkscape:label="{label}"'
-            f' data-handoff-role="outline" d="{escape(" ".join(paths), quote=True)}" fill="none"'
+    return (f'<path id="compio-gp-{element_id}" inkscape:label="{label}"'
+            f' data-compio-role="outline" d="{escape(" ".join(paths), quote=True)}" fill="none"'
             f' stroke="{color}" stroke-opacity="{fmt(opacity)}"'
             f' stroke-width="{fmt(width)}" stroke-linecap="round" stroke-linejoin="round"/>')
 
@@ -147,23 +147,23 @@ def _encode_live_text(info, element_id):
                  'CENTER': 'central', 'BOTTOM': 'text-after-edge',
                  'BOTTOM_BASELINE': 'alphabetic'}
     baseline = baselines.get(info.get('align_y'), 'alphabetic')
-    attrs = [f'id="handoff-text-{element_id}"', f'inkscape:label="{name}"',
-             f'data-handoff-object="{name}"', f'data-handoff-font="{label}"',
+    attrs = [f'id="compio-text-{element_id}"', f'inkscape:label="{name}"',
+             f'data-compio-object="{name}"', f'data-compio-font="{label}"',
              f'font-family="{family}"', f'font-size="{fmt(info["size"])}"',
              f'fill="{info["fill"]}"', f'fill-opacity="{fmt(info["opacity"])}"',
              f'text-anchor="{anchors.get(alignment, "start")}"',
              f'dominant-baseline="{baseline}"',
-             f'data-handoff-space-character="{fmt(info.get("space_character", 1))}"',
-             f'data-handoff-space-word="{fmt(info.get("space_word", 1))}"',
-             f'data-handoff-space-line="{fmt(info.get("space_line", 1))}"',
-             f'data-handoff-small-caps-scale="{fmt(info.get("small_caps_scale", .75))}"',
-             f'data-handoff-underline-height="{fmt(info.get("underline_height", .05))}"',
-             f'data-handoff-underline-position="{fmt(info.get("underline_position", 0))}"',
+             f'data-compio-space-character="{fmt(info.get("space_character", 1))}"',
+             f'data-compio-space-word="{fmt(info.get("space_word", 1))}"',
+             f'data-compio-space-line="{fmt(info.get("space_line", 1))}"',
+             f'data-compio-small-caps-scale="{fmt(info.get("small_caps_scale", .75))}"',
+             f'data-compio-underline-height="{fmt(info.get("underline_height", .05))}"',
+             f'data-compio-underline-position="{fmt(info.get("underline_position", 0))}"',
              f'transform="{transform}"',
              f'x="{fmt(info.get("offset_x", 0))}"',
              f'y="{fmt(-info.get("offset_y", 0))}"']
     if info.get('font_substituted',False):
-        attrs.append('data-handoff-font-substituted="true"')
+        attrs.append('data-compio-font-substituted="true"')
     spacing = float(info.get('space_character', 1))
     if abs(spacing - 1) > 0.00001:
         # Spacing factors in Blender multiply advances. SVG letter-spacing
@@ -173,15 +173,15 @@ def _encode_live_text(info, element_id):
     if abs(float(info.get('space_word', 1)) - 1) > .00001:
         attrs.append(f'word-spacing="{fmt((info["space_word"] - 1) * info["size"] * .5)}"')
     if abs(float(info.get('shear', 0))) > .00001:
-        attrs.append(f'data-handoff-shear="{fmt(info["shear"])}"')
+        attrs.append(f'data-compio-shear="{fmt(info["shear"])}"')
     text = str(info['body']).replace('\r\n','\n')
     if not text:
         return ''
     # Keep the original content including line breaks for round-tripping.
-    attrs.append(f'data-handoff-source-text="{escape(text, quote=True).replace(chr(10), "&#10;")}"')
+    attrs.append(f'data-compio-source-text="{escape(text, quote=True).replace(chr(10), "&#10;")}"')
     kerning = info.get('kerning', ())
     if any(abs(float(v)) > .00001 for v in kerning):
-        attrs.append('data-handoff-char-kerning="' + ','.join(fmt(v) for v in kerning) + '"')
+        attrs.append('data-compio-char-kerning="' + ','.join(fmt(v) for v in kerning) + '"')
     output = ['<text ' + ' '.join(attrs) + '>']
     formats = info.get('formats', [])
     colors = info.get('material_colors', [])
@@ -242,13 +242,13 @@ def _encode_curve_object(info, element_id):
             runs.append((style, [part.get('d') or svg_path(part['points'],part['type'],True)]))
     out = []
     for i, ((color, opacity), ds) in enumerate(runs):
-        out.append(f'<path id="handoff-curve-{element_id}-{i}" inkscape:label="{label}"'
-                   f' data-handoff-object="{label}" d="{escape(" ".join(ds), quote=True)}"'
+        out.append(f'<path id="compio-curve-{element_id}-{i}" inkscape:label="{label}"'
+                   f' data-compio-object="{label}" d="{escape(" ".join(ds), quote=True)}"'
                    f' fill="{color}" fill-opacity="{fmt(opacity)}"'
                    f' fill-rule="{fill_rule}" stroke="none"/>')
     if len(out) > 1:
-        return (f'<g id="handoff-curve-object-{element_id}" inkscape:label="{label}"'
-                f' data-handoff-object="{label}">' + '\n'.join(out) + '</g>')
+        return (f'<g id="compio-curve-object-{element_id}" inkscape:label="{label}"'
+                f' data-compio-object="{label}">' + '\n'.join(out) + '</g>')
     return '\n'.join(out)
 
 
@@ -261,8 +261,8 @@ def _fill_gradient_markup(gradient, identifier):
                     f' stop-opacity="{fmt(s["opacity"])}"/>' for s in gradient['stops'])
     return (f'<defs><{tag} id="{identifier}" gradientUnits="userSpaceOnUse"'
             f' {coords} gradientTransform="matrix({matrix})" color-interpolation="sRGB"'
-            f' data-handoff-interpolation="{escape(gradient.get("interpolation", "LINEAR"), quote=True)}"'
-            f' data-handoff-color-mode="{escape(gradient.get("color_mode", "RGB"), quote=True)}"'
+            f' data-compio-interpolation="{escape(gradient.get("interpolation", "LINEAR"), quote=True)}"'
+            f' data-compio-color-mode="{escape(gradient.get("color_mode", "RGB"), quote=True)}"'
             f' spreadMethod="pad">{stops}</{tag}></defs>')
 
 
@@ -274,8 +274,8 @@ def encode_svg(width, height, objects):
     for obj_index, obj in enumerate(objects):
         if obj.get('svg_kind') == 'RASTER':
             label = escape(obj['name'], quote=True)
-            text.append(f'<g id="handoff-raster-{obj_index}" inkscape:label="{label}"'
-                        f' data-handoff-raster-request="{obj["request"]}">'
+            text.append(f'<g id="compio-raster-{obj_index}" inkscape:label="{label}"'
+                        f' data-compio-raster-request="{obj["request"]}">'
                         f'<image x="0" y="0" width="{int(width)}" height="{int(height)}"'
                         ' preserveAspectRatio="none"/></g>')
             continue
@@ -295,27 +295,27 @@ def encode_svg(width, height, objects):
         layer_attrs = ''
         if single_layer:
             only_layer = obj['layers'][0]
-            layer_attrs = (f' data-handoff-layer="{escape(only_layer["name"], quote=True)}"'
+            layer_attrs = (f' data-compio-layer="{escape(only_layer["name"], quote=True)}"'
                            f' opacity="{fmt(only_layer.get("opacity", 1))}"')
         if obj.get('expanded_stroke'):
-            layer_attrs += (' data-handoff-geometry="expanded-stroke" data-handoff-source-widths="' +
+            layer_attrs += (' data-compio-geometry="expanded-stroke" data-compio-source-widths="' +
                             escape(json.dumps(obj['expanded_stroke']),quote=True) + '"')
         if blended:
             layer_attrs += ' style="isolation:isolate"'
         if obj.get('modifiers'):
-            layer_attrs += ' data-handoff-modifiers="'+escape(json.dumps(obj['modifiers']),quote=True)+'"'
+            layer_attrs += ' data-compio-modifiers="'+escape(json.dumps(obj['modifiers']),quote=True)+'"'
         if obj.get('source_geometry'):
-            layer_attrs += ' data-handoff-source-geometry="'+escape(json.dumps(obj['source_geometry']),quote=True)+'"'
+            layer_attrs += ' data-compio-source-geometry="'+escape(json.dumps(obj['source_geometry']),quote=True)+'"'
         if obj.get('svg_instance'):
             info = obj['svg_instance']
             layer_attrs += (' data-layered-instance-key="' + escape(info['key'], quote=True) + '"'
                             ' data-layered-instance-config="' + escape(info['config'], quote=True) + '"'
                             ' data-layered-instance-basis="' + escape(json.dumps(info['basis']), quote=True) + '"')
-        text.append(f'<g id="handoff-gp-object-{obj_index}" data-handoff-object="{obj_label}" inkscape:label="{obj_label}"{layer_attrs}>')
+        text.append(f'<g id="compio-gp-object-{obj_index}" data-compio-object="{obj_label}" inkscape:label="{obj_label}"{layer_attrs}>')
         for layer_index, layer in enumerate(obj['layers']):
             layer_label = escape(layer['name'], quote=True)
             if not single_layer:
-                text.append(f'<g id="handoff-gp-layer-{obj_index}-{layer_index}" data-handoff-layer="{layer_label}" inkscape:label="{layer_label}" opacity="{fmt(layer.get("opacity", 1))}"{blend_attrs[layer_index]}>')
+                text.append(f'<g id="compio-gp-layer-{obj_index}-{layer_index}" data-compio-layer="{layer_label}" inkscape:label="{layer_label}" opacity="{fmt(layer.get("opacity", 1))}"{blend_attrs[layer_index]}>')
             strokes = [dict(stroke) for stroke in layer['strokes']]
             # Blender may supply an outline and its filled contour as two
             # curves. They can share one SVG path only when the path data and
@@ -407,18 +407,18 @@ def encode_svg(width, height, objects):
                     if runs:
                         element_id += 1
                         text.append(
-                            f'<g id="handoff-gp-shape-{element_id}"'
+                            f'<g id="compio-gp-shape-{element_id}"'
                             f' inkscape:label="{obj_label}"'
-                            f' data-handoff-shape="fill-group"'
-                            f' data-handoff-fill-id="{fid}"'
-                            f' data-handoff-contours="{len(contours)}">')
+                            f' data-compio-shape="fill-group"'
+                            f' data-compio-fill-id="{fid}"'
+                            f' data-compio-contours="{len(contours)}">')
                     element_id += 1
                     if gradient:
-                        identifier = f'handoff-fill-gradient-{element_id}'
+                        identifier = f'compio-fill-gradient-{element_id}'
                         text.append(_fill_gradient_markup(gradient, identifier))
                         color = f'url(#{identifier})'
-                    attrs = (f' id="handoff-gp-{element_id}" inkscape:label="{layer_label}"'
-                             f' data-handoff-role="fill"'
+                    attrs = (f' id="compio-gp-{element_id}" inkscape:label="{layer_label}"'
+                             f' data-compio-role="fill"'
                              f' d="{escape(" ".join(contours_paths), quote=True)}"'
                              f' fill="{color}" fill-opacity="{fmt(opacity)}" fill-rule="evenodd"')
                     if can_join:

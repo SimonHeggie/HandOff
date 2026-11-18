@@ -1,26 +1,28 @@
-# OCA 1.3 authoring
+# OCA 1.3 authoring and compatibility
 
-The View Layer and Collection **HandOff — OCA Authoring** controls affect only the OCA destination. Other formats continue through their existing writers. The source project's rendered appearance and these extra OCA properties are deliberately distinct.
+Handoff's OCA output can be authored through the View Layer and Collection properties panels. These settings affect OCA only; they do not alter the PSD, PSB or standalone SVG writer. See [OCA controls](OCA_CONTROLS.md) for the seven destination controls and [vector assets](OCA_VECTORS.md) for SVG/PNG handling.
 
-## Layer and group properties
+## Project structure and validation
 
-| Blender control | OCA result |
+- New destinations can use the canonical `.oca/` directory containing a single `.oca` root document, separate `_meta.json` and relative assets. Saved destinations can retain the explicit legacy layout.
+- Stable source-derived IDs, uniqueness-preserving exported aliases, portable relative assets and a pre-publication validator protect consistency. Outputs are generated in a staging area before replacing existing documents; this is not a guarantee against power loss.
+- The supported precision values are U8/U16 PNG and F16/F32 EXR. SVG is a separate vector representation, not a floating-point raster format.
+
+## Source authoring
+
+| Blender source control | OCA representation |
 | --- | --- |
-| View Layer visibility/background | Explicit layer visibility and document background intent, rather than inference from a name or stack position |
-| Export Opacity and Frame Opacity | Layer opacity and animated exposure opacity, separately from alpha baked into the raster/vector source |
-| Blend / Inherit Alpha | Standard OCA paint-blend and clipping metadata; the target reader's compositing may differ |
-| Collection opacity / blend / isolation | Native OCA group representation, retaining source grouping and colour labels |
-| Keep Independent | Stops an otherwise safe automatic reuse/clone conversion |
+| View Layer visibility/background | Authored visible/background intent, not inferred from name or compositor stack position |
+| Export Opacity / Frame Opacity | Distinct OCA layer opacity and keyed frame opacity, in addition to rendered source alpha |
+| OCA Blend / Inherit Alpha | Standard 1.3 blending and alpha-inheritance flags; receiving programs may approximate the visual result |
+| Linked Grease Pencil duplicates | Verified shared-datablock/appearance relationships can produce `clonelayer` references; unsupported rotations/styling become separate artwork |
+| Keep Independent | Opt out of automatic cloning |
+| Source View Layer / Offset / Time Offset | Explicit validated source reference, positional shift, and stepped exposure timing |
+| Nested OCA Document | A portable `ocalayer` referencing a copied nested project, with optional source-layer ID |
+| Collection opacity / blend / isolation | Standard group authoring, preserving the existing collection hierarchy |
 
-## Source references and reusable artwork
+OCA 1.3 does **not** define general pivot/rotation/scale animation, an exported Blender armature, or skeletal weights in this implementation. Selective frame deduplication and transform capture are roadmap items, not features of this release.
 
-- **Linked GP duplicates** sharing a Blender datablock may become OCA `clonelayer` references when geometry, appearance, identity and translation checks pass; unsupported rotation or styling remains an independent drawing.
-- **Source View Layer**, **Reference Offset** and **Time Offset** explicitly select a source artwork stream and move or delay exposures. Missing, ambiguous or cyclic relationships are rejected.
-- **Nested OCA Document** creates an OCA `ocalayer`; referenced document assets are copied into the exported project with portable relative paths. An optional source layer ID can select nested content.
-- These are **not** 3D skeletal-rig, bone-weight or pivot/rotation/scale animation exports.
+## Interoperability and limitations
 
-## Publication and interoperability
-
-Use the canonical project directory for new deliveries; the old layout is available for saved jobs requiring it. Validated asset links, unique names, source-derived IDs, separate metadata and staged publication reduce accidental corruption.
-
-A Bluik Plus 1.3 importer was tested separately with image, GP SVG and reference scenarios. Complex isolated group opacity, Inherit Alpha clipping, unsupported GP gradients and some paint blending remain reader-dependent; a rendered PNG alternative is an available fallback. See [OCA controls](OCA-controls) and [OCA vector artwork](OCA-vector-artwork).
+Native image and SVG cels, nested projects, clones and time offsets have been exercised with Bluik development fixtures. The Bluik compatibility improvements are maintained separately and are **not** installed merely by installing Handoff. The receiving preview may still approximate complex multi-child isolated blending, Inherit Alpha clipping and some GP gradients; PNG alternatives can supply visual fallbacks. Photoshop, PhotoCraft and Krita graphical edit/save round-trips have not been certified by these Blender tests.

@@ -131,7 +131,7 @@ class SVGOpacityTests(unittest.TestCase):
         group = root.find(SVG+'g')
         ink = '{http://www.inkscape.org/namespaces/inkscape}'
         self.assertEqual(group.get(ink+'label'), 'Golden outline')
-        self.assertEqual(group.get('data-handoff-layer'), 'Ink')
+        self.assertEqual(group.get('data-compio-layer'), 'Ink')
         self.assertEqual(group.get('opacity'), '0.35')
         self.assertIsNone(group.find(SVG+'g'))
         self.assertEqual(group.find(SVG+'path').get(ink+'label'), 'Ink')

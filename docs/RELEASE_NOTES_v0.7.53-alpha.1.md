@@ -1,30 +1,43 @@
-# HandOff v0.7.53 Alpha 1 — OCA 1.3 authoring and interchange
+# Handoff v0.7.53 Alpha 1 — OCA 1.3 authoring and interchange
 
-> **Source revision in preparation — not a published release.** The latest published downloadable release is v0.7.51 Alpha 1. A v0.7.52 consolidated-release note existed as an unpublished draft, so this update reserves v0.7.53 to avoid ambiguity.
+> **Alpha release:** Validate exports in their intended applications before production use.
 
-## What's new in the supplied source
+Handoff v0.7.53 advances the Blender Compositor File Output workflow from layered OCA still/animation export to a more structured, source-aware OCA 1.3 publishing system. It does **not** claim general 3D-to-2D rig conversion.
 
-- **Canonical OCA projects:** A new OCA destination can use a portable `Name.oca/Name.oca` project structure with metadata sidecar and source-relative artwork. Explicit legacy layout remains available to existing saved jobs.
-- **Identity, validation and publication:** persistent source identifiers reduce reordering-related identity changes; duplicate exported names and asset names are disambiguated without renaming Blender sources. Validation checks the OCA project and referenced files before staged publication, including recoverable replacement failures.
-- **Grease Pencil vector cels:** eligible directly traced GP content becomes editable SVG assets; unsuitable content retains native PNG/EXR output. Rasterise Vector Layers chooses a raster visible layer, while Keep Alternative Artwork can retain unselected SVG or PNG without inserting a second visible layer.
-- **OCA-specific authoring:** View Layer and Collection properties permit explicit visibility and background, layer/group/frame opacity, blend selection, alpha inheritance, group isolation and independent OCA source settings. Authored opacity remains separate from source opacity already baked into image pixels.
-- **Reusable source artwork:** validated linked GP instances can produce OCA `clonelayer` references. Explicit Source View Layer, position and time offsets, Keep Independent and recursive nested `ocalayer` references provide source-aware interchange. Invalid or cyclic reference graphs fail explicitly.
-- **Precision:** U8/U16 image and F16/F32 EXR publishing paths, crop/scale/padding and frame exposure handling have dedicated regression coverage.
-- **Compatibility diagnostics:** staged Bluik Plus development integration tested shared GP drawing edits, nested sources, time offsets, crop placement, save/reopen and selected paint blending with Blender 5.3. Bluik receiver changes are a *separate project*, not installed by HandOff.
+## Changes from the published v0.7.51 source
 
-## Verification evidence and cautions
+### Standards-compliant OCA project delivery
+- New destinations can publish canonical `Name.oca/Name.oca` projects, with a separate `Name_meta.json`, portable relative artwork and a selection for legacy folder layout.
+- Exported layer names and source-derived identities are disambiguated without renaming Blender objects, collections or inputs. Persist newly assigned node IDs by saving the Blender project.
+- Asset and document validation runs before staged publication. Recoverable rename failures restore the previous project. This does not guarantee recovery from abrupt power loss.
+- Original frame numbers, cropped centre placement, transparent exposures and input stack order are retained. New PNG/EXR precision handling covers U8/U16/F16/F32 as appropriate to the destination.
 
-The uploaded source includes test reports for 243 passing HandOff Python tests and native Blender/OCA/Krita-reader checks. These results are historical evidence from the supplied development environment, not an independently repeated final v0.7.53 release certification. Some Blender runs demonstrated a factory-startup audio shutdown hang after assertions completed.
+### Editable artwork and source-aware authoring
+- Supported Grease Pencil inputs publish individual editable SVG cels; unsupported content keeps rendered images. **Rasterise Vector Layers** selects a raster representation, and **Keep Alternative Artwork** optionally retains an SVG/PNG companion without a duplicate visible OCA layer.
+- View Layer and Collection authoring panels add OCA-specific visibility/background, layer/frame opacity, alpha inheritance, blend selection, isolation and group options. Source alpha already baked into pixels is not inferred and reapplied.
+- Verified linked Grease Pencil source instances can reuse artwork through standard OCA `clonelayer` references. **Keep Independent** leaves an instance separate. Unsupported transforms/styles use independent artwork rather than claiming false sharing.
+- **Source View Layer**, reference positioning and time offsets support explicit cross-input reuse; ambiguous, missing or cyclic references fail validation. **Nested OCA Document** uses the standard `ocalayer` type and copies reachable referenced assets.
+- Source order, `.merge`/`.ungroup`, rendered PSD/PSB/SVG outputs, colour labels and legacy saved identifiers remain on their established paths.
 
-The supplied code does **not** add selective frame deduplication, captured 3D object transform curves, 3D armature/weight interchange, general 2D skeletal rig reconstruction, Blender-to-Blender scene export, or VSE export. These are future milestones. OCA 1.3 does not standardize pivot/rotation/scale keyframes.
+### Compatibility, testing and corrections
+- The included Blender 5.3 development test matrix exercises actual OCA exports and Bluik 1.3 imports: shared GP editing, cropped raster cels, opacity changes, blank exposures, nested sources, time offsets, saved-file reopening and blend calculation.
+- An installed-engine mismatch, OCA visibility inherited from excluded rendering collections, and several import preview/paint-mode limitations were identified; Bluik receiver fixes are **separate Bluik Plus changes**, not part of the Handoff add-on install.
+- The local validation logs report 243 Python tests passing, native test fixtures and Krita reader loading selected projects. Tests were performed against the supplied source snapshot; the newly bumped version has not been independently certified in a complete application UI test pass.
 
-**Known receiving limits:** Blender/Bluik previewing approximates some group-opacity, Inherit Alpha and Grease Pencil SVG gradient cases; other readers may choose different paint/colour interpretations. No blanket Photoshop/PhotoCraft/Krita GUI save-and-reopen equivalence is claimed. No new standalone ZIP or GitHub release has been published.
+## Known limitations
 
-## Upgrade and documentation
+- OCA 1.3 has no interoperable general transform, pivot, 3D bones or mesh-weight animation encoding. Handoff does **not** preserve these as native 2D rigs in this release.
+- Selective frame sequence deduplication, transform capture, 3D skeleton/weight capture, Blender-document reconstruction and VSE/scene export remain planned milestones.
+- Some Grease Pencil gradients, isolated multi-child group blending, Inherit Alpha clipping and target editor colour management differ across readers. Bluik native 3D preview fidelity is explicitly limited.
+- Native SVG/Photoshop/Krita edit-and-save round-trip parity has not been established. The existing Blender factory-startup audio shutdown hang on the test machine prevents treating process termination as a clean integration result.
+- Do not install the automatic GitHub source ZIP as a substitute for a complete Blender release asset containing required third-party dependencies. No v0.7.53 binary release has yet been published.
 
-Once the candidate has been fully synchronized, reviewed, built and published, install its **release asset** ZIP from Blender's Edit → Preferences → Add-ons → Install from Disk, not the automatically generated GitHub source ZIP. Disable/uninstall older `blend_psd_tools` registrations before enabling `handoff`.
+## Installation and documentation
 
-- [OCA authoring](../handoff/manual/OCA_AUTHORING.md)
-- [OCA controls](../handoff/manual/OCA_CONTROLS.md)
-- [OCA vector artwork](../handoff/manual/OCA_VECTORS.md)
-- [Historical release notes](HISTORICAL_GITHUB_RELEASE_NOTES.md)
+Use an installable **release asset ZIP** once v0.7.53 has been built, validated and published. In Blender: Edit → Preferences → Add-ons → Install from Disk. Restart Blender when upgrading and disable previous renamed packages to avoid duplicate render handlers. Use the Compositor's File Output node → **HandOff - Additional Exports**; **Check Export Status** before exporting, and **Retry Export (No Render)** for retained caches.
+
+- [OCA authoring](OCA_AUTHORING.md)
+- [OCA controls](OCA_CONTROLS.md)
+- [OCA vector representation](../handoff/manual/OCA_VECTORS.md)
+- [Full source manual](../handoff/manual/MANUAL.html)
+- [Historical release descriptions](HISTORICAL_GITHUB_RELEASE_NOTES.md)

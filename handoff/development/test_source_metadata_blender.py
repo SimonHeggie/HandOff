@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT.parent),str(ROOT
 
 def run():
  import bpy
- import handoff as addon
+ import blend_psd_tools as addon
  from svg_metadata import source_metadata,ensure_unique_ids
  addon.register();scene=bpy.context.scene
  data=bpy.data.grease_pencils.new('Source Data');original=bpy.data.objects.new('Original',data);scene.collection.objects.link(original)

@@ -18,7 +18,7 @@ sys.path[:0] = [str(ROOT.parent), str(ROOT)]
 def run():
     import bpy
     import numpy as np
-    import handoff as addon
+    import blend_psd_tools as addon
     from psd_worker import assemble, find_inputs, read_rgba
     addon.register()
     # Exercise production prepare explicitly; avoid launching an asynchronous
@@ -33,7 +33,7 @@ def run():
     first=scene.view_layers[0];first.name='Enabled';second=scene.view_layers.new('Disabled');second.use=False
     # Existing UUIDs must survive an ordinary rename; export does not create
     # new UUIDs or alter the source View Layer render flags.
-    scene['_handoff_sync_scene_id']='native-scene';second['_handoff_view_layer_id']='native-layer'
+    scene['_compio_sync_scene_id']='native-scene';second['_compio_view_layer_id']='native-layer'
     tree=bpy.data.node_groups.new('Disabled rendering fixture','CompositorNodeTree');scene.compositing_node_group=tree
     node=tree.nodes.new('CompositorNodeOutputFile')
     while len(node.file_output_items):node.file_output_items.remove(node.file_output_items[0])
@@ -41,7 +41,7 @@ def run():
         node.file_output_items.new('RGBA',layer.name)
         source=tree.nodes.new('CompositorNodeRLayers');source.scene=scene;source.layer=layer.name
         tree.links.new(source.outputs['Image'],node.inputs[index])
-    with tempfile.TemporaryDirectory(prefix='handoff-disabled-native-') as folder:
+    with tempfile.TemporaryDirectory(prefix='compio-disabled-native-') as folder:
         folder=Path(folder);node.directory=str(folder/'native');node.file_name='Raw'
         for fmt,depth in [('PSD',8),('PSD',16),('PSD',32),('SVG',8),('PNG',8),('OCA',8)]:
             item=node.blend_artwork_exports.add();item.format=fmt;item.depth=str(depth)

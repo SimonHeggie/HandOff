@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 
 ROOT=Path(__file__).resolve().parent
 DOC=ROOT.parent/'manual'
-EXPECTED={'MANUAL.html','groups.html','psd.html','vectors.html','tags.html',
+EXPECTED={'oca.html','MANUAL.html','groups.html','psd.html','vectors.html','tags.html',
           'tags-operations.html','tags-spine.html','generator.html',
           'exr-suffixes.html','openexr.html','sources.html'}
 

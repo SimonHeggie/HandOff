@@ -31,7 +31,7 @@ assert 'layer_stack' not in sys.modules
         root=ET.Element(SVG+'svg');objects=[]
         for i,(name,box) in enumerate(zip(('Case A','Case B','Case A'),boxes)):
             el=ET.SubElement(root,SVG+'path',id=str(i))
-            if box is not None:el.set('data-handoff-bounds',json.dumps(box))
+            if box is not None:el.set('data-compio-bounds',json.dumps(box))
             objects.append(dict(name='Object '+str(i),collection_parts=[name]))
         group_svg(root,objects)
         return root
@@ -66,7 +66,7 @@ assert 'layer_stack' not in sys.modules
         self.assertTrue(any('Shapes / literal' in e.get(INK+'label','') for e in root))
 
     def test_fallback_image_lives_directly_in_authored_collection(self):
-        root=ET.Element(SVG+'svg');group=ET.SubElement(root,SVG+'g',{'id':'raster',INK+'label':'Actual object','data-handoff-raster-request':'0'})
+        root=ET.Element(SVG+'svg');group=ET.SubElement(root,SVG+'g',{'id':'raster',INK+'label':'Actual object','data-compio-raster-request':'0'})
         ET.SubElement(group,SVG+'image',href='data:image/png;base64,test')
         group_svg(root,[dict(name='Actual object',collection_parts=['Case'])]);unwrap_raster_groups(root)
         folder=root[0]

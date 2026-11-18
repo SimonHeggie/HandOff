@@ -26,7 +26,7 @@ class GPBlendTests(unittest.TestCase):
         root = ET.fromstring(vectors.encode_svg(3,3,[dict(name='Paint',layers=layers)]))
         obj = root.find(SVG+'g')
         self.assertEqual(obj.get('style'), 'isolation:isolate')
-        self.assertEqual([g.get('data-handoff-layer') for g in obj], ['Base','Shadow','Light'])
+        self.assertEqual([g.get('data-compio-layer') for g in obj], ['Base','Shadow','Light'])
         self.assertEqual([g.get('style') for g in obj],
                          [None, 'mix-blend-mode:multiply', 'mix-blend-mode:hard-light'])
         self.assertEqual([g.get('opacity') for g in obj], ['0.4']*3)
@@ -38,7 +38,7 @@ class GPBlendTests(unittest.TestCase):
         obj = ET.fromstring(vectors.encode_svg(3,3,[artwork])).find(SVG+'g')
         self.assertEqual(obj.get('style'), 'isolation:isolate')
         self.assertEqual(obj[0].get('style'), 'mix-blend-mode:multiply')
-        self.assertEqual(obj[0].get('data-handoff-layer'), 'Ink')
+        self.assertEqual(obj[0].get('data-compio-layer'), 'Ink')
 
     def test_explicit_rendered_mode_and_approximate_math_mappings(self):
         layer = NS(name='Ink', opacity=.5, use_lights=False, blend_mode='MULTIPLY',
@@ -56,7 +56,7 @@ class GPBlendTests(unittest.TestCase):
                 group=ET.fromstring(vectors.encode_svg(3,3,[dict(name='Paint',layers=[
                     dict(name='Ink',blend_mode=mode,strokes=[square()])])]))[0][0]
                 self.assertEqual(group.get('style'),'mix-blend-mode:'+css)
-                self.assertEqual(group.get('data-handoff-blend-approximation'),css)
+                self.assertEqual(group.get('data-compio-blend-approximation'),css)
             for mode in ('UNKNOWN',):
                 layer.blend_mode = mode
                 with self.assertRaisesRegex(vectors.VectorFallback, 'no supported SVG equivalent'):
@@ -104,7 +104,7 @@ class GPBlendTests(unittest.TestCase):
             write_svg_document(dict(dest=str(dest),depth=8,hierarchy='GROUPS'),
                                [(dict(name='Art',vector_svg=str(source)),cache)],logger=lambda *args:None)
             root = ET.parse(dest).getroot()
-            blended = [n for n in root.iter() if n.get('data-handoff-gp-blend')]
+            blended = [n for n in root.iter() if n.get('data-compio-gp-blend')]
             self.assertEqual(len(blended),1)
             self.assertEqual(blended[0].get('style'),'mix-blend-mode:multiply')
             self.assertEqual(blended[0].get('opacity'),'0.5')

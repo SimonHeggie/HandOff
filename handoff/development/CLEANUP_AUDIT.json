@@ -1,0 +1,605 @@
+{
+  "source_archive": "blend_psd_tools(1).zip",
+  "removed_archive_only": [
+    {
+      "path": ".backups/2026-11-11-gp-svg-before.tar.gz",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/oca-controls-latest.txt",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/2026-11-11-gp-hybrid-before.tar.gz",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/2026-11-11-render-crash-before.tar.gz",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/2026-11-11-font-groups-before.tar.gz",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/2026-11-11-gp-labels-text-before.tar.gz",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "dist/HandOff-0.7.50-local.zip",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "dist/package-report.json",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_svg_export.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/svg_pressure.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/render_temp.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_oca_sequence.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/oca_controls.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/runtime_paths.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/psd_gradients.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/svg_collections.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/psd_worker.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_svg_fallback_diagnostics.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/oca_companions.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_svg_pressure.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/tag_registry.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_svg_gradients.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_export_performance.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_svg_collections.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_font_delivery.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/export_performance.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_psd_vectors.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/oca_sequence.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/layer_stack.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/vector_artwork.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/oca_vectors.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_color_management.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/attribution_names.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/font_delivery.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_render_temp.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_job_cache_cleanup.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_builtin_font.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/builtin_font.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_conversion_policy.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_svg_gp_blends.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/collection_colors.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_compio_hierarchy.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_svg_curve_text.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_oca_controls.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/svg_export.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/svg_instances.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_blender_reload.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/psd_svg_links.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/raster_bounds.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/collection_provenance.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/svg_hybrid.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/conversion_policy.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_worker_startup.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/branding.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/job_cache_cleanup.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/psd_color_profiles.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_svg_metadata.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/svg_metadata.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/png16_pixels.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_runtime_paths.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_psd_svg_links.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_disabled_layers.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/disabled_layers.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_svg_instances.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_psd_gradients.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/job_ownership.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/psd_vectors.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/pillow_loader.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/gp_raster_cache.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_oca_vectors.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/svg_source.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/svg_document.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_svg_hybrid.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/group_blends.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/merge_groups.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/test_job_ownership.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "__pycache__/oca_images.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/__pycache__/registry.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/__pycache__/validators.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/__pycache__/terminology.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/__pycache__/version.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/__pycache__/constants.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/__pycache__/color_convert.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/__pycache__/__init__.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/composite/__pycache__/utils.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/composite/__pycache__/blend.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/composite/__pycache__/adjustments.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/composite/__pycache__/composite.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/composite/__pycache__/effects.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/composite/__pycache__/widen.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/composite/__pycache__/vector.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/composite/__pycache__/paint.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/composite/__pycache__/_compat.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/composite/__pycache__/scanline.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/composite/__pycache__/__init__.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/api/__pycache__/utils.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/api/__pycache__/mask.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/api/__pycache__/adjustments.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/api/__pycache__/psd_image.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/api/__pycache__/pil_io.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/api/__pycache__/effects.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/api/__pycache__/smart_object.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/api/__pycache__/layers.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/api/__pycache__/numpy_io.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/api/__pycache__/_resources.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/api/__pycache__/_descriptor.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/api/__pycache__/shape.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/api/__pycache__/protocols.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/api/__pycache__/__init__.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/image_data.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/bin_utils.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/parse_limits.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/adjustments.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/base.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/header.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/color.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/tagged_blocks.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/vector.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/image_resources.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/linked_layer.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/engine_data.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/layer_and_mask.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/document.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/filter_effects.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/effects_layer.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/patterns.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/color_mode_data.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/descriptor.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/psd/__pycache__/__init__.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/compression/__pycache__/rle.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "vendor/psd_tools/compression/__pycache__/__init__.cpython-313.pyc",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/handoff-final-local/reference-source-hashes.json",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/handoff-final-local/working-source-hashes.json",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/handoff-final-local/working-source.tar.gz",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/handoff-final-local/reference-source.tar.gz",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/oca-controls-tijoaen9/oca_sequence.py",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/oca-controls-tijoaen9/baseline-sha256.json",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/oca-controls-tijoaen9/__init__.py",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/oca-controls-tijoaen9/test_compio_hierarchy.py",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/oca-controls-tijoaen9/psd_worker.py",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/oca-controls-tijoaen9/test_oca_sequence.py",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/oca-controls-tijoaen9/manual/MANUAL.md",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/oca-controls-tijoaen9/manual/README.md",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": ".backups/oca-controls-tijoaen9/development/test_oca_animation_blender.py",
+      "reason": "Historical backup, build output, cache, or temporary diagnostics"
+    },
+    {
+      "path": "development/validation/installed-runtime-sha256.json",
+      "reason": "Host-specific generated validation evidence; original uploaded archive retains it"
+    },
+    {
+      "path": "development/validation/handoff-final.json",
+      "reason": "Host-specific generated validation evidence; original uploaded archive retains it"
+    },
+    {
+      "path": "development/validation/cleanup-manifest.json",
+      "reason": "Host-specific generated validation evidence; original uploaded archive retains it"
+    }
+  ],
+  "retained_files": 223,
+  "public_branding_changes": [
+    "compatibility/tags.xml",
+    "README.md",
+    "development/test_svg_text_blender.py",
+    "test_svg_export.py",
+    "test_compio_hierarchy.py",
+    "test_blender_reload.py",
+    "development/build_handoff.py"
+  ],
+  "compatibility_identifiers": "Preserved existing compio SVG/data, cached path aliases, Blender RNA/operator identifiers",
+  "code_modules_deleted": []
+}

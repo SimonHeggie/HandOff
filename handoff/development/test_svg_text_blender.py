@@ -100,7 +100,7 @@ def run():
         if name == 'Variable GP':
             drawing.strokes[0].points[0].opacity = .2
     scene.frame_set(0)
-    directory = Path(os.environ.get('HANDOFF_TEST_OUT') or tempfile.mkdtemp(prefix='handoff-live-text-'))
+    directory = Path(os.environ.get('COMP_IO_TEST_OUT') or tempfile.mkdtemp(prefix='compio-live-text-'))
     directory.mkdir(parents=True, exist_ok=True)
     print('TEXT_TEST_OUTPUT', directory, flush=True)
 
@@ -137,7 +137,7 @@ def run():
         if flat:
             text = next(t for t in texts if t.get(INK+'label') == 'Principled label')
             assert abs(float(text.get('fill-opacity')) - .65) < .00001
-        gp = next(g for g in root.iter(SVG+'g') if g.get('data-handoff-object') == 'Editable GP')
+        gp = next(g for g in root.iter(SVG+'g') if g.get('data-compio-object') == 'Editable GP')
         assert gp.get(INK+'label') == 'Editable GP'
         assert gp.find(SVG+'path').get(INK+'label') == 'Ink'
         assert not gp.findall(SVG+'g'), 'Redundant single-layer container survived'

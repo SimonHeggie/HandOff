@@ -405,7 +405,7 @@ def append_artwork(container,model,depth=8,*,job=None,fallback=None):
         rdf=xmp.find('{http://www.w3.org/1999/02/22-rdf-syntax-ns#}RDF')
         if rdf is None:rdf=ET.SubElement(xmp,'{http://www.w3.org/1999/02/22-rdf-syntax-ns#}RDF')
         description=ET.SubElement(rdf,'{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Description')
-        ET.SubElement(description,'{urn:handoff:vector-source:1.0}source').text=json.dumps(provenance,ensure_ascii=False)
+        ET.SubElement(description,'{urn:compio:vector-source:1.0}source').text=json.dumps(provenance,ensure_ascii=False)
         resources[Resource.XMP_METADATA]=ImageResource(key=Resource.XMP_METADATA,data=ET.tostring(xmp,encoding='utf-8'))
     return count
 

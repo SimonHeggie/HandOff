@@ -1,0 +1,515 @@
+{
+  "version": "0.7.43",
+  "dataset": {
+    "size": [
+      2048,
+      2729
+    ],
+    "raster_layers": 21,
+    "psd_depth": 16,
+    "method": "Retained-render assembly; Blender full character rendering excluded"
+  },
+  "psd": {
+    "before": {
+      "format": "PSD",
+      "seconds": 117.79918191401521,
+      "stages": {
+        "find_inputs": 0.0011742530041374266,
+        "read_rgba": 39.14020078990143,
+        "psd_save": 10.577802887011785,
+        "assemble_psd": 117.79781535698567
+      },
+      "bytes": 722105514,
+      "peak_rss_mib": 1813.30078125
+    },
+    "after": {
+      "format": "PSD",
+      "seconds": 56.639436636003666,
+      "stages": {
+        "find_inputs": 0.0012912240345031023,
+        "read_rgba": 41.33469125098782,
+        "psd_save": 9.906456903961953,
+        "assemble_psd": 56.63791351899272
+      },
+      "native_performance": {
+        "stages": {
+          "resolve_inputs": {
+            "seconds": 0.001281075004953891,
+            "calls": 1
+          },
+          "decode_pixels": {
+            "seconds": 41.33433343307115,
+            "calls": 22
+          },
+          "crop_raster": {
+            "seconds": 0.06531975307734683,
+            "calls": 21
+          },
+          "psd_vector_build": {
+            "seconds": 0.0005899050156585872,
+            "calls": 1
+          },
+          "psd_save": {
+            "seconds": 9.906464613974094,
+            "calls": 1
+          },
+          "psd_build_and_save": {
+            "seconds": 56.63790709996829,
+            "calls": 1
+          }
+        },
+        "total_seconds": 56.63941914297175,
+        "peak_process_rss_mib": 1106.3359375
+      },
+      "bytes": 71561189,
+      "peak_rss_mib": 1106.3359375
+    },
+    "speedup": 2.0798085028821505,
+    "size_reduction_percent": 90.08992624864516
+  },
+  "streaming": {
+    "before_warm": [
+      {
+        "format": "PNG",
+        "seconds": 7.553652105038054,
+        "stages": {
+          "find_inputs": 0.0012340379762463272,
+          "read_rgba": 1.2505451449542306,
+          "merge_layers": 7.01955490995897,
+          "assemble_stills": 7.552220500016119
+        },
+        "bytes": 7155979,
+        "peak_rss_mib": 2310.203125
+      },
+      {
+        "format": "PNG",
+        "seconds": 7.547691051964648,
+        "stages": {
+          "find_inputs": 0.0012367799645289779,
+          "read_rgba": 1.2455531499581411,
+          "merge_layers": 7.013739301008172,
+          "assemble_stills": 7.546262083051261
+        },
+        "bytes": 7155979,
+        "peak_rss_mib": 2311.0546875
+      }
+    ],
+    "after_warm": [
+      {
+        "format": "PNG",
+        "seconds": 7.3188867150456645,
+        "stages": {
+          "find_inputs": 0.0012217710027471185,
+          "read_rgba": 1.23385325120762,
+          "merge_layers": 6.777666161011439,
+          "assemble_stills": 7.31745549099287
+        },
+        "bytes": 7155979,
+        "peak_rss_mib": 605.58203125
+      },
+      {
+        "format": "PNG",
+        "seconds": 7.532408884959295,
+        "stages": {
+          "find_inputs": 0.0012952580000273883,
+          "read_rgba": 1.261687949881889,
+          "merge_layers": 7.002633348980453,
+          "assemble_stills": 7.5308968930039555
+        },
+        "bytes": 7155979,
+        "peak_rss_mib": 605.16796875
+      }
+    ]
+  },
+  "cropping": {
+    "character_before": {
+      "format": "PSD",
+      "seconds": 117.79918191401521,
+      "stages": {
+        "find_inputs": 0.0011742530041374266,
+        "read_rgba": 39.14020078990143,
+        "psd_save": 10.577802887011785,
+        "assemble_psd": 117.79781535698567
+      },
+      "bytes": 722105514,
+      "peak_rss_mib": 1813.30078125
+    },
+    "character_after": {
+      "format": "PSD",
+      "seconds": 125.72059586498654,
+      "stages": {
+        "find_inputs": 0.001241161022335291,
+        "read_rgba": 41.342796321201604,
+        "psd_save": 13.603902296046726,
+        "assemble_psd": 125.71912548295222
+      },
+      "native_performance": {
+        "stages": {
+          "resolve_inputs": {
+            "seconds": 0.001232642971444875,
+            "calls": 1
+          },
+          "decode_pixels": {
+            "seconds": 41.342435403959826,
+            "calls": 22
+          },
+          "crop_raster": {
+            "seconds": 0.06667071901028976,
+            "calls": 21
+          },
+          "psd_vector_build": {
+            "seconds": 0.0006034529651515186,
+            "calls": 1
+          },
+          "psd_save": {
+            "seconds": 13.603910303965677,
+            "calls": 1
+          },
+          "psd_build_and_save": {
+            "seconds": 125.71911895798985,
+            "calls": 1
+          }
+        },
+        "total_seconds": 125.72057701996528,
+        "peak_process_rss_mib": 1770.078125
+      },
+      "bytes": 709725994,
+      "peak_rss_mib": 1770.078125
+    },
+    "sparse_before": {
+      "seconds": 1.8078168429783545,
+      "bytes": 2711254
+    },
+    "sparse_after": {
+      "seconds": 0.35441537405131385,
+      "bytes": 2373590
+    }
+  },
+  "vector_preparation": {
+    "before": {
+      "seconds": 0.33994405600242317,
+      "prepared_sources": 3,
+      "snapshots": 3,
+      "snapshot_bytes": 55571862
+    },
+    "after": {
+      "seconds": 0.22509008401539177,
+      "prepared_sources": 1,
+      "snapshots": 1,
+      "snapshot_bytes": 18523945
+    }
+  },
+  "instrumentation": {
+    "calls": 20000,
+    "plain_seconds": 0.00032093701884150505,
+    "profiled_seconds": 0.022224955027922988,
+    "overhead_microseconds_per_call": 1.0952009004540741
+  },
+  "compression": {
+    "RLE": {
+      "format": "PSD",
+      "seconds": 125.72059586498654,
+      "stages": {
+        "find_inputs": 0.001241161022335291,
+        "read_rgba": 41.342796321201604,
+        "psd_save": 13.603902296046726,
+        "assemble_psd": 125.71912548295222
+      },
+      "native_performance": {
+        "stages": {
+          "resolve_inputs": {
+            "seconds": 0.001232642971444875,
+            "calls": 1
+          },
+          "decode_pixels": {
+            "seconds": 41.342435403959826,
+            "calls": 22
+          },
+          "crop_raster": {
+            "seconds": 0.06667071901028976,
+            "calls": 21
+          },
+          "psd_vector_build": {
+            "seconds": 0.0006034529651515186,
+            "calls": 1
+          },
+          "psd_save": {
+            "seconds": 13.603910303965677,
+            "calls": 1
+          },
+          "psd_build_and_save": {
+            "seconds": 125.71911895798985,
+            "calls": 1
+          }
+        },
+        "total_seconds": 125.72057701996528,
+        "peak_process_rss_mib": 1770.078125
+      },
+      "bytes": 709725994,
+      "peak_rss_mib": 1770.078125
+    },
+    "ZIP": {
+      "format": "PSD",
+      "seconds": 56.639436636003666,
+      "stages": {
+        "find_inputs": 0.0012912240345031023,
+        "read_rgba": 41.33469125098782,
+        "psd_save": 9.906456903961953,
+        "assemble_psd": 56.63791351899272
+      },
+      "native_performance": {
+        "stages": {
+          "resolve_inputs": {
+            "seconds": 0.001281075004953891,
+            "calls": 1
+          },
+          "decode_pixels": {
+            "seconds": 41.33433343307115,
+            "calls": 22
+          },
+          "crop_raster": {
+            "seconds": 0.06531975307734683,
+            "calls": 21
+          },
+          "psd_vector_build": {
+            "seconds": 0.0005899050156585872,
+            "calls": 1
+          },
+          "psd_save": {
+            "seconds": 9.906464613974094,
+            "calls": 1
+          },
+          "psd_build_and_save": {
+            "seconds": 56.63790709996829,
+            "calls": 1
+          }
+        },
+        "total_seconds": 56.63941914297175,
+        "peak_process_rss_mib": 1106.3359375
+      },
+      "bytes": 71561189,
+      "peak_rss_mib": 1106.3359375
+    },
+    "ZIP_WITH_PREDICTION": {
+      "format": "PSD",
+      "seconds": 57.488180563028436,
+      "stages": {
+        "find_inputs": 0.001278670970350504,
+        "read_rgba": 39.73726175207412,
+        "psd_save": 10.945389350992627,
+        "assemble_psd": 57.48667457600823
+      },
+      "bytes": 65206424,
+      "peak_rss_mib": 1120.63671875
+    },
+    "microbench": [
+      {
+        "depth": 8,
+        "kind": "sparse",
+        "codec": "RLE",
+        "seconds": 0.05142674996750429,
+        "bytes": 101134,
+        "exact": true
+      },
+      {
+        "depth": 8,
+        "kind": "sparse",
+        "codec": "ZIP",
+        "seconds": 0.008339823049027473,
+        "bytes": 94831,
+        "exact": true
+      },
+      {
+        "depth": 8,
+        "kind": "sparse",
+        "codec": "ZIP_WITH_PREDICTION",
+        "seconds": 0.016712208976969123,
+        "bytes": 94857,
+        "exact": true
+      },
+      {
+        "depth": 8,
+        "kind": "sparse",
+        "codec": "RAW",
+        "seconds": 0.004123613005504012,
+        "bytes": 344330,
+        "exact": true
+      },
+      {
+        "depth": 8,
+        "kind": "noise",
+        "codec": "RLE",
+        "seconds": 0.03972270799567923,
+        "bytes": 351024,
+        "exact": true
+      },
+      {
+        "depth": 8,
+        "kind": "noise",
+        "codec": "ZIP",
+        "seconds": 0.011610402027145028,
+        "bytes": 344465,
+        "exact": true
+      },
+      {
+        "depth": 8,
+        "kind": "noise",
+        "codec": "ZIP_WITH_PREDICTION",
+        "seconds": 0.012479502009227872,
+        "bytes": 344465,
+        "exact": true
+      },
+      {
+        "depth": 8,
+        "kind": "noise",
+        "codec": "RAW",
+        "seconds": 0.003756756952498108,
+        "bytes": 344330,
+        "exact": true
+      },
+      {
+        "depth": 16,
+        "kind": "sparse",
+        "codec": "RLE",
+        "seconds": 0.08117417898029089,
+        "bytes": 198981,
+        "exact": true
+      },
+      {
+        "depth": 16,
+        "kind": "sparse",
+        "codec": "ZIP",
+        "seconds": 0.010309252014849335,
+        "bytes": 189089,
+        "exact": true
+      },
+      {
+        "depth": 16,
+        "kind": "sparse",
+        "codec": "ZIP_WITH_PREDICTION",
+        "seconds": 0.011026980006136,
+        "bytes": 189091,
+        "exact": true
+      },
+      {
+        "depth": 16,
+        "kind": "sparse",
+        "codec": "RAW",
+        "seconds": 0.004384460975416005,
+        "bytes": 688394,
+        "exact": true
+      },
+      {
+        "depth": 16,
+        "kind": "noise",
+        "codec": "RLE",
+        "seconds": 0.0857477379613556,
+        "bytes": 697801,
+        "exact": true
+      },
+      {
+        "depth": 16,
+        "kind": "noise",
+        "codec": "ZIP",
+        "seconds": 0.019540233013685793,
+        "bytes": 688634,
+        "exact": true
+      },
+      {
+        "depth": 16,
+        "kind": "noise",
+        "codec": "ZIP_WITH_PREDICTION",
+        "seconds": 0.019966259016655385,
+        "bytes": 688634,
+        "exact": true
+      },
+      {
+        "depth": 16,
+        "kind": "noise",
+        "codec": "RAW",
+        "seconds": 0.003741975990124047,
+        "bytes": 688394,
+        "exact": true
+      },
+      {
+        "depth": 32,
+        "kind": "sparse",
+        "codec": "RLE",
+        "seconds": 0.177974600053858,
+        "bytes": 530799,
+        "exact": true
+      },
+      {
+        "depth": 32,
+        "kind": "sparse",
+        "codec": "ZIP",
+        "seconds": 0.024751941033173352,
+        "bytes": 307835,
+        "exact": true
+      },
+      {
+        "depth": 32,
+        "kind": "sparse",
+        "codec": "ZIP_WITH_PREDICTION",
+        "seconds": 0.032598663005046546,
+        "bytes": 317920,
+        "exact": true
+      },
+      {
+        "depth": 32,
+        "kind": "sparse",
+        "codec": "RAW",
+        "seconds": 0.0055434469832107425,
+        "bytes": 1376596,
+        "exact": true
+      },
+      {
+        "depth": 32,
+        "kind": "noise",
+        "codec": "RLE",
+        "seconds": 0.17891919799149036,
+        "bytes": 1368264,
+        "exact": true
+      },
+      {
+        "depth": 32,
+        "kind": "noise",
+        "codec": "ZIP",
+        "seconds": 0.07010273297782987,
+        "bytes": 1119554,
+        "exact": true
+      },
+      {
+        "depth": 32,
+        "kind": "noise",
+        "codec": "ZIP_WITH_PREDICTION",
+        "seconds": 0.08430797996697947,
+        "bytes": 1149553,
+        "exact": true
+      },
+      {
+        "depth": 32,
+        "kind": "noise",
+        "codec": "RAW",
+        "seconds": 0.005530163994990289,
+        "bytes": 1376596,
+        "exact": true
+      }
+    ]
+  },
+  "validation": {
+    "document_preview_equal": true,
+    "layers_equal": 21,
+    "metadata_equal": true,
+    "icc_equal": true,
+    "seconds": 9.155756886990275
+  },
+  "gui_validation": "Photoshop/PhotoCraft GUI unavailable; actual files reopened using bundled PSD reader and native Blender fixtures",
+  "notes": [
+    "Warm timings reported separately from initial cold/memory-pressure runs.",
+    "Peak RSS is process-wide; isolated format processes used for memory comparison.",
+    "Nested stage timings overlap.",
+    "Conservative crops retain hidden RGB; no destructive alpha-only trimming.",
+    "No repeated implementation failure was left unresolved; cropping has a workload-dependent performance benefit."
+  ]
+}

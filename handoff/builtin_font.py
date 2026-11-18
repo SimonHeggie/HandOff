@@ -80,10 +80,7 @@ def compatible_bfont(data):
     folder=Path(__file__).parent/'vendor'/'fonts'
     metadata=json.loads((folder/'Bfont-Regular.json').read_text())
     if hashlib.sha256(data).hexdigest()!=metadata['source_sha256']:return None
-    converted_path=folder/'Bfont-Regular.otf'
-    if not converted_path.is_file():
-        return None  # Optional compatibility font asset is not bundled.
-    converted=converted_path.read_bytes()
+    converted=(folder/'Bfont-Regular.otf').read_bytes()
     if hashlib.sha256(converted).hexdigest()!=metadata['otf_sha256']:
         raise ValueError('The Bfont OpenType compatibility asset failed its checksum')
     return converted

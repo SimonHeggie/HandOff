@@ -1,6 +1,6 @@
 """Blender 5.3 rendered material-gradient fixtures, without user project data.
 
-Run with --factory-startup --disable-autoexec. Set HANDOFF_TEST_OUTPUT to a
+Run with --factory-startup --disable-autoexec. Set COMP_IO_TEST_OUTPUT to a
 private writable directory. Compare exported SVGs in an independent renderer.
 """
 import os
@@ -125,7 +125,7 @@ def run(folder):
 
 if __name__ == '__main__':
     try:
-        folder = Path(os.environ['HANDOFF_TEST_OUTPUT']); folder.mkdir(parents=True, exist_ok=True)
+        folder = Path(os.environ['COMP_IO_TEST_OUTPUT']); folder.mkdir(parents=True, exist_ok=True)
         run(folder)
     except BaseException:
         traceback.print_exc(); sys.stdout.flush(); sys.stderr.flush(); os._exit(1)

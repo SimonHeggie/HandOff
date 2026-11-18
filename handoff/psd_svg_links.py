@@ -3,15 +3,6 @@
 One PSD representation is used for all editors. Application validation is
 recorded separately; it is not a user-facing publishing switch.
 """
-
-try:
-    from .svg_compat import normalize_metadata
-except ImportError:
-    try:
-        from svg_compat import normalize_metadata
-    except ImportError:
-        def normalize_metadata(root):
-            return root
 from pathlib import Path
 from xml.etree import ElementTree as ET
 import hashlib
@@ -21,8 +12,7 @@ def preserve_source_file(job,label,source):
     """Preserve an already resolved hybrid SVG without losing embedded images."""
     from svg_metadata import slug
     source=Path(source);payload=source.read_bytes();root=ET.fromstring(payload)
-    normalize_metadata(root)
-    if root.get('data-handoff-source-plan') or root.get('data-handoff-raster-plan'):
+    if root.get('data-compio-source-plan') or root.get('data-compio-raster-plan'):
         raise ValueError('Source SVG preparation has not completed')
     destination=Path(job['dest']);folder=destination.parent/(destination.stem+'.assets')
     folder.mkdir(parents=True,exist_ok=True)

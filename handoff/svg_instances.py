@@ -124,7 +124,7 @@ def compatible(master, candidate, transform):
     ids_a = {node.get('id'): str(i) for i,node in enumerate(left) if node.get('id')}
     ids_b = {node.get('id'): str(i) for i,node in enumerate(right) if node.get('id')}
     ignored = {'id', KEY, CONFIG, BASIS, SOURCE, INK+'label', INK+'highlight-color',
-               'data-handoff-object', 'data-handoff-bounds', 'data-handoff-source-geometry', 'data-handoff-modifiers'}
+               'data-compio-object', 'data-compio-bounds', 'data-compio-source-geometry', 'data-compio-modifiers'}
     a,b,c,d,_,_ = transform
     scale = math.hypot(a,b)
     similarity = (abs(a*c+b*d) < 1e-5 * max(1,scale**2) and

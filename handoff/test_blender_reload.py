@@ -23,7 +23,7 @@ class TestBlenderUpgrade(unittest.TestCase):
                 end=source.index('\nimport bpy',begin)
                 namespace={'__name__':name,'__package__':name,'bl_info':{}}
                 exec(source[begin:end],namespace)
-                self.assertEqual(namespace['bl_info']['version'],(0,7,51))
+                self.assertEqual(namespace['bl_info']['version'],(0,7,53))
                 self.assertEqual(namespace['BRAND_NAME'],'HandOff')
             finally:
                 sys.path.remove(temp)
@@ -34,7 +34,7 @@ class TestBlenderUpgrade(unittest.TestCase):
         # The failure in v0.7.17 arose because Blender retained a v0.7.15
         # layer_stack module with API level 4 but without preview_merge_groups.
         with tempfile.TemporaryDirectory() as temp:
-            package_name = 'handoff_upgrade_fixture'
+            package_name = 'compio_upgrade_fixture'
             package = Path(temp) / package_name
             package.mkdir()
             (package / '__init__.py').write_text('', encoding='utf-8')
@@ -72,7 +72,7 @@ class TestBlenderUpgrade(unittest.TestCase):
         # Installing a new ZIP should refresh SVG even when the cached module
         # advertises the same API version as the replacement module.
         with tempfile.TemporaryDirectory() as temp:
-            package_name = 'handoff_svg_upgrade_fixture'
+            package_name = 'compio_svg_upgrade_fixture'
             package = Path(temp) / package_name
             package.mkdir()
             (package / '__init__.py').write_text('', encoding='utf-8')

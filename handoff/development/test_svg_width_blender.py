@@ -1,7 +1,7 @@
 """Blender 5.3 pressure-stroke regression; all fixtures live in a private folder.
 
 Run with --factory-startup --disable-autoexec -b --python this_file.py.
-HANDOFF_TEST_OUT can retain the native PNG and SVG for reader comparisons.
+COMP_IO_TEST_OUT can retain the native PNG and SVG for reader comparisons.
 """
 import json
 import os
@@ -22,7 +22,7 @@ def run():
     from svg_hybrid import export_hybrid_svg, resolve_hybrid_source
     from svg_collections import SVG
     assert bpy.app.version[:2]==(5,3)
-    out=Path(os.environ.get('HANDOFF_TEST_OUT') or tempfile.mkdtemp(prefix='handoff-width-'))
+    out=Path(os.environ.get('COMP_IO_TEST_OUT') or tempfile.mkdtemp(prefix='compio-width-'))
     out.mkdir(parents=True,exist_ok=True)
     scene=bpy.context.scene
     for obj in list(bpy.data.objects):bpy.data.objects.remove(obj,do_unlink=True)
@@ -61,9 +61,9 @@ def run():
     root=ET.parse(out/'pressure.svg').getroot()
     assert len(list(root.iter(SVG+'image')))==1, 'Closed pressure stroke must retain its inner contour via PNG'
     parents={child:parent for parent in root.iter() for child in parent}
-    expanded=[e for e in root.iter() if e.get('data-handoff-geometry')=='powerstroke']
-    assert {parents[e].get('data-handoff-object') for e in expanded}=={'Taper','Pressure','Alpha'}
-    assert all(json.loads(e.get('data-handoff-pressure'))['widths'] for e in expanded)
+    expanded=[e for e in root.iter() if e.get('data-compio-geometry')=='powerstroke']
+    assert {parents[e].get('data-compio-object') for e in expanded}=={'Taper','Pressure','Alpha'}
+    assert all(json.loads(e.get('data-compio-pressure'))['widths'] for e in expanded)
     scene.render.image_settings.file_format='PNG';scene.render.image_settings.color_mode='RGBA';scene.render.image_settings.color_depth='8'
     bpy.ops.render.render(write_still=False)
     bpy.data.images['Render Result'].save_render(str(out/'pressure-native.png'),scene=scene)

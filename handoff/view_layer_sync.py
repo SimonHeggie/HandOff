@@ -14,28 +14,20 @@ import uuid
 from dataclasses import dataclass
 
 SYNC_API_VERSION = 1
-LAYER_ID = '_handoff_view_layer_id'
-SCENE_ID = '_handoff_sync_scene_id'
-STATE = '_handoff_view_layer_sync'
-REPORT = '_handoff_view_layer_sync_report'
-PORTS = '_handoff_sync_ports'
+LAYER_ID = '_compio_view_layer_id'
+SCENE_ID = '_compio_sync_scene_id'
+STATE = '_compio_view_layer_sync'
+REPORT = '_compio_view_layer_sync_report'
+PORTS = '_compio_sync_ports'
 
 
 class SyncError(ValueError):
     pass
 
 
-def _legacy_value(owner, key, default=None):
-    """Read saved pre-rename identifiers without writing more old ones."""
-    value = owner.get(key)
-    if value is None and key.startswith('_handoff_'):
-        value = owner.get('_compio_' + key[len('_handoff_'):])
-    return default if value is None else value
-
-
 def _json(owner, key, default):
     try:
-        return json.loads(_legacy_value(owner, key, ''))
+        return json.loads(owner.get(key, ''))
     except (TypeError, ValueError):
         return default
 
@@ -283,10 +275,10 @@ def synchronize(scene, node):
     state = _json(node, STATE, {})
     if state and not isinstance(state, dict):
         raise SyncError('Saved input-sync metadata is invalid; no inputs changed')
-    scene_id = str(_legacy_value(scene, SCENE_ID) or uuid.uuid4().hex)
+    scene_id = str(scene.get(SCENE_ID) or uuid.uuid4().hex)
     tokens = {}
     for layer in layers:
-        token = str(_legacy_value(layer, LAYER_ID) or uuid.uuid4().hex)
+        token = str(layer.get(LAYER_ID) or uuid.uuid4().hex)
         if token in tokens:
             token = uuid.uuid4().hex  # Duplicated View Layers can copy custom properties.
         tokens[token] = layer

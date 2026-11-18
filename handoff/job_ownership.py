@@ -1,13 +1,4 @@
 """Automatic cleanup is restricted to a folder created by this operation."""
-
-try:
-    from .svg_compat import normalize_metadata
-except ImportError:
-    try:
-        from svg_compat import normalize_metadata
-    except ImportError:
-        def normalize_metadata(root):
-            return root
 import json
 from pathlib import Path
 import shutil
@@ -55,8 +46,7 @@ def remove_completed_snapshots(root):
     for source in folder.glob('*.svg'):
         try:
             el = ET.parse(source).getroot()
-            normalize_metadata(el)
-            for key in ('data-handoff-source-plan','data-handoff-raster-plan'):
+            for key in ('data-compio-source-plan','data-compio-raster-plan'):
                 if el.get(key):
                     needed.add(Path(json.loads(el.get(key))['snapshot']).resolve())
         except (OSError, ValueError, ET.ParseError):

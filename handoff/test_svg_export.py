@@ -17,63 +17,6 @@ def point(x, y, left=None, right=None):
     return {'co': (x,y), 'left': left, 'right': right}
 
 
-class SVGTrimTest(unittest.TestCase):
-    def test_raster_fallback_trims_without_moving_document_or_2d_pixels(self):
-        import base64
-        import io
-        import numpy as np
-        from PIL import Image
-        for trim in (True, False):
-            with self.subTest(trim=trim), TemporaryDirectory() as temporary:
-                root=Path(temporary);cache=root/'cache';cache.mkdir()
-                original=np.zeros((7,9,4),dtype=np.uint8)
-                original[2:5,4:8]=[71,65,150,255]
-                original[1,2]=[1,2,3,0]
-                Image.fromarray(original, 'RGBA').save(cache/'Layer_0000.png')
-                assemble(dict(format='SVG',dir=str(cache),dest=str(root/'Drawing.svg'),
-                    depth=8,extension='.png',overwrite=True,hierarchy='FLAT',
-                    trim_empty_pixels=trim,tag_profile='PASSTHROUGH',
-                    manifest=[dict(name='Drawing',slug='Layer_')]))
-                doc=ET.parse(root/'Drawing.svg').getroot()
-                self.assertEqual(doc.get('viewBox'),'0 0 9 7')
-                node=next(doc.iter('{http://www.w3.org/2000/svg}image'))
-                bounds=[int(node.get(k)) for k in ('x','y','width','height')]
-                self.assertEqual(bounds, [2,1,6,4] if trim else [0,0,9,7])
-                png=base64.b64decode(node.get('href').split(',',1)[1])
-                with Image.open(io.BytesIO(png)) as im:
-                    pixels=np.asarray(im.convert('RGBA'))
-                x,y,w,h=bounds
-                restored=np.zeros_like(original);restored[y:y+h,x:x+w]=pixels
-                np.testing.assert_array_equal(restored,original)
-
-
-    def test_svg_png16_trim_preserves_depth_and_exact_pixel_samples(self):
-        import base64
-        import numpy as np
-        from test_color_management import filtered_png16
-        from png16_pixels import read_png16_rgba_bytes
-        with TemporaryDirectory() as temporary:
-            root=Path(temporary);cache=root/'cache';cache.mkdir()
-            original=np.zeros((9,13,4),dtype=np.uint16)
-            original[3:6,4:9]=[207,10243,65535,32768]
-            original[1,2]=[12345,0,25,0]
-            filtered_png16(cache/'Layer_0000.png',original,4)
-            assemble(dict(format='SVG',dir=str(cache),dest=str(root/'Drawing.svg'),
-                depth=16,extension='.png',overwrite=True,hierarchy='FLAT',
-                trim_empty_pixels=True,tag_profile='PASSTHROUGH',
-                manifest=[dict(name='Drawing',slug='Layer_')]))
-            doc=ET.parse(root/'Drawing.svg').getroot()
-            image=next(doc.iter('{http://www.w3.org/2000/svg}image'))
-            self.assertEqual([int(image.get(k)) for k in ('x','y','width','height')], [2,1,7,5])
-            data=base64.b64decode(image.get('href').split(',',1)[1])
-            self.assertEqual(data[24],16)  # PNG IHDR bit depth
-            restored=np.zeros_like(original)
-            clipped=np.rint(read_png16_rgba_bytes(data)*65535).astype(np.uint16)
-            restored[1:6,2:9]=clipped
-            np.testing.assert_array_equal(restored,original)
-
-
-
 class SourceTracing(unittest.TestCase):
     def test_direct_render_node_allowed(self):
         layer = SimpleNamespace(name='Sprite')
@@ -282,7 +225,7 @@ class SVGTests(unittest.TestCase):
             doc=ET.parse(out).getroot()
             ns='{http://www.w3.org/2000/svg}'
             self.assertEqual(len(list(doc.iter(ns+'path'))),2)
-            self.assertEqual([g.get('data-handoff-object') for g in doc.findall(ns+'g')],
+            self.assertEqual([g.get('data-compio-object') for g in doc.findall(ns+'g')],
                              ['ShineSprite.001','ShineSprite'])
 
     def test_fill_and_visible_stroke_from_same_curve_become_one_path(self):
@@ -380,15 +323,15 @@ class SVGTests(unittest.TestCase):
         svg=encode_svg(20,20,[dict(name='ShineSprite',layers=[dict(name='Shine',strokes=contours)])])
         root=ET.fromstring(svg)
         ns='{http://www.w3.org/2000/svg}';ink='{http://www.inkscape.org/namespaces/inkscape}'
-        groups=[g for g in root.iter(ns+'g') if g.get('data-handoff-shape') == 'fill-group']
+        groups=[g for g in root.iter(ns+'g') if g.get('data-compio-shape') == 'fill-group']
         self.assertEqual(len(groups),1)
         shape=groups[0]
         self.assertEqual(shape.get(ink+'label'),'ShineSprite')
-        self.assertEqual(shape.get('data-handoff-fill-id'),'9')
-        self.assertEqual(shape.get('data-handoff-contours'),'4')
+        self.assertEqual(shape.get('data-compio-fill-id'),'9')
+        self.assertEqual(shape.get('data-compio-contours'),'4')
         paths=shape.findall(ns+'path')
         self.assertEqual(len(paths),3)  # fill + yellow outline + green outline
-        self.assertEqual([x.get('data-handoff-role') for x in paths],['fill','outline','outline'])
+        self.assertEqual([x.get('data-compio-role') for x in paths],['fill','outline','outline'])
         self.assertEqual([x.get('stroke') for x in paths],['none','#ffee00','#00ff00'])
         self.assertEqual([x.get('fill') for x in paths],['#fff','none','none'])
         # The fill can still represent the hole by even-odd winding.
@@ -402,7 +345,7 @@ class SVGTests(unittest.TestCase):
                        stroke_opacity=1,width=4,material_index=0) for _ in range(2)]
         root=ET.fromstring(encode_svg(15,15,[dict(name='Sprite',layers=[dict(name='Shine',strokes=contours)])]))
         ns='{http://www.w3.org/2000/svg}'
-        self.assertFalse(any(g.get('data-handoff-shape') for g in root.iter(ns+'g')))
+        self.assertFalse(any(g.get('data-compio-shape') for g in root.iter(ns+'g')))
         paths=list(root.iter(ns+'path'))
         self.assertEqual(len(paths),1)
         self.assertEqual(paths[0].get('stroke'),'#dddd00')
@@ -418,7 +361,7 @@ class SVGTests(unittest.TestCase):
         paths[2]['width']=6.5
         markup=encode_svg(20,20,[dict(name='Shine',layers=[dict(name='Shine',strokes=paths)])])
         root=ET.fromstring(markup)
-        shape=next(g for g in root.iter(ns+'g') if g.get('data-handoff-shape')=='fill-group')
+        shape=next(g for g in root.iter(ns+'g') if g.get('data-compio-shape')=='fill-group')
         self.assertEqual(len(shape.findall(ns+'path')),3)
 
     def test_independent_outlines_join_without_merging_different_paints(self):

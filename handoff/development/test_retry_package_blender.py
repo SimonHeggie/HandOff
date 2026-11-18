@@ -7,9 +7,9 @@ sys.path.insert(0,str(ROOT.parent))  # Deliberately do not add the add-on root.
 
 def run():
  import bpy
- import handoff as addon
- from handoff.svg_hybrid import export_hybrid_svg
- from handoff.disabled_layers import transparent_cache
+ import blend_psd_tools as addon
+ from blend_psd_tools.svg_hybrid import export_hybrid_svg
+ from blend_psd_tools.disabled_layers import transparent_cache
  from xml.etree import ElementTree as E
  assert str(ROOT) not in sys.path
  assert 'layer_stack' not in sys.modules
@@ -56,7 +56,7 @@ def run():
  assert entry['collection_colors'][-1]=='NO_COLOR',entry
  root=E.parse(entry['vector_svg']).getroot();INK='{http://www.inkscape.org/namespaces/inkscape}';SVG='{http://www.w3.org/2000/svg}'
  assert len(list(root.iter(SVG+'use')))==1
- groups=[g for g in root.iter() if g.get('data-handoff-object') or g.get(INK+'groupmode')=='layer']
+ groups=[g for g in root.iter() if g.get('data-compio-object') or g.get(INK+'groupmode')=='layer']
  assert groups and all(g.get(INK+'highlight-color')=='#ffffff' for g in groups),[(g.attrib) for g in groups]
  assert before==(obj.data.as_pointer(),tuple(copy.location),view.use)
  assert str(ROOT) not in sys.path and 'layer_stack' not in sys.modules

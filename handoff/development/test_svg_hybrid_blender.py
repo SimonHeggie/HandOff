@@ -35,10 +35,10 @@ def run():
     scene.cycles.device = 'CPU'
     scene.cycles.samples = 1
     scene.render.resolution_x = scene.render.resolution_y = 64
-    scene.render.resolution_percentage = int(os.environ.get('HANDOFF_TEST_SCALE', '100'))
+    scene.render.resolution_percentage = int(os.environ.get('COMP_IO_TEST_SCALE', '100'))
     expected_size = (64 * scene.render.resolution_percentage // 100,) * 2
     scene.render.film_transparent = True
-    save_as_render = os.environ.get('HANDOFF_TEST_SAVE_AS_RENDER', '1') != '0'
+    save_as_render = os.environ.get('COMP_IO_TEST_SAVE_AS_RENDER', '1') != '0'
     scene.view_settings.view_transform = 'Standard' if save_as_render else 'Filmic'
     scene.view_settings.look = 'None'
     camera = bpy.data.objects.new('Camera', bpy.data.cameras.new('Camera'))
@@ -98,8 +98,8 @@ def run():
     else:
         raise AssertionError('Lighting on an additional drawing layer was ignored')
     editable.use_grease_pencil_lights=False;view.update()
-    depth = int(os.environ.get('HANDOFF_TEST_DEPTH', '8'))
-    with tempfile.TemporaryDirectory(prefix='handoff-hybrid-test-') as directory:
+    depth = int(os.environ.get('COMP_IO_TEST_DEPTH', '8'))
+    with tempfile.TemporaryDirectory(prefix='compio-hybrid-test-') as directory:
         path = Path(directory)/'source.svg'
         original_path = bpy.data.filepath
         original_view = scene.view_settings.view_transform
@@ -137,10 +137,10 @@ def run():
         assert resolve_hybrid_source(path, depth=depth)
         root = ET.parse(path).getroot()
         assert root.get(DEFERRED) is None
-        objects = [n.get('data-handoff-object') for n in root.iter() if n.get('data-handoff-object')]
+        objects = [n.get('data-compio-object') for n in root.iter() if n.get('data-compio-object')]
         assert sorted(objects) == ['Editable', 'Mirror'], objects
-        group=next(n for n in root.iter() if n.get('data-handoff-object')=='Editable')
-        assert [n.get('data-handoff-layer') for n in group]==['Drawing','Foreground']
+        group=next(n for n in root.iter() if n.get('data-compio-object')=='Editable')
+        assert [n.get('data-compio-layer') for n in group]==['Drawing','Foreground']
         assert abs(float(group[1].get('opacity'))-.45)<.00001
         assert all(list(n.iter('{http://www.w3.org/2000/svg}path')) for n in group)
         resolve_hybrid_source(path, depth=depth)

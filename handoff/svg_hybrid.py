@@ -7,16 +7,6 @@ saved. A resolved sidecar is self-contained and reusable without a render.
 """
 
 try:
-    from .svg_compat import normalize_metadata
-except ImportError:
-    try:
-        from svg_compat import normalize_metadata
-    except ImportError:
-        # Standalone test fixtures may deliberately copy only core helper modules.
-        def normalize_metadata(root):
-            return root
-
-try:
     from .branding import LOG_PREFIX
 except ImportError:
     from branding import LOG_PREFIX
@@ -44,14 +34,14 @@ except ImportError:
 
 SVG = '{http://www.w3.org/2000/svg}'
 INK = '{http://www.inkscape.org/namespaces/inkscape}'
-HYBRID = 'data-handoff-hybrid'
-RESOLVED = 'data-handoff-raster-resolved'
-PLAN = 'data-handoff-raster-plan'
-REQUEST = 'data-handoff-raster-request'
-DEFERRED = 'data-handoff-source-plan'
+HYBRID = 'data-compio-hybrid'
+RESOLVED = 'data-compio-raster-resolved'
+PLAN = 'data-compio-raster-plan'
+REQUEST = 'data-compio-raster-request'
+DEFERRED = 'data-compio-source-plan'
 HYBRID_API_VERSION = 13
-LAYER_BLENDS = 'data-handoff-svg-layer-blends'
-BLEND_VERSION = 'data-handoff-blend-version'
+LAYER_BLENDS = 'data-compio-svg-layer-blends'
+BLEND_VERSION = 'data-compio-blend-version'
 
 # Native fixtures exercise these modifiers. Other evaluated GP geometry is
 # accepted only when the same geometry/paint checks succeed.
@@ -327,7 +317,7 @@ def export_hybrid_svg(scene, view_layer, path, *, save_as_render=True, allow_ras
                   ', '.join(mode+' -> '+vectors.GP_SVG_BLENDS[mode] for mode in modes)+
                   '. GP transparency and scene colour management can differ from Blender', flush=True)
         for element,artwork in zip(root,components):
-            element.set('data-handoff-bounds',json.dumps(artwork.get('bounds')))
+            element.set('data-compio-bounds',json.dumps(artwork.get('bounds')))
         group_svg(root, components)
         if not requests:
             try:
@@ -354,7 +344,6 @@ def retained_hybrid(path, *, editable_layer_blends=None):
     if not path or not Path(path).is_file():
         return False
     root = ET.parse(path).getroot()
-    normalize_metadata(root)
     if root.get(DEFERRED):
         raise ValueError('SVG source preparation is incomplete; render with F12 to rebuild it')
     if root.get(HYBRID) != '1':
@@ -390,7 +379,6 @@ def resolve_hybrid_source(path, *, depth=8, logger=print):
     path = Path(path)
     tree = ET.parse(path)
     root = tree.getroot()
-    normalize_metadata(root)
     loaded = None
     if root.get(DEFERRED):
         plan = json.loads(root.attrib[DEFERRED])
@@ -414,7 +402,6 @@ def resolve_hybrid_source(path, *, depth=8, logger=print):
             return False
         tree = ET.parse(path)
         root = tree.getroot()
-        normalize_metadata(root)
     if root.get(HYBRID) != '1' or root.get(RESOLVED) == '1':
         return True
     import bpy
@@ -462,7 +449,7 @@ def resolve_hybrid_source(path, *, depth=8, logger=print):
             except ImportError:
                 from svg_bounds import image_bounds
             bounds = image_bounds(image_path)
-            images[index].set('data-handoff-bounds',json.dumps(bounds))
+            images[index].set('data-compio-bounds',json.dumps(bounds))
             if bounds is None or bounds == [0, 0, 0, 0]:
                 logger(f'{LOG_PREFIX} SVG EMPTY RASTER GROUP:', ', '.join(sorted(wanted)),
                        '| Blender rendered zero alpha. Object fallback reasons:',

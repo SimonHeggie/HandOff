@@ -126,7 +126,7 @@ class CurveTextTests(unittest.TestCase):
         self.assertEqual(el.get('transform'),'matrix(100 0 0 100 50 250)')
         self.assertEqual(''.join(el.itertext()),text.replace('\n',''))
         self.assertGreaterEqual(len(list(el.iter(SVG+'tspan'))),2)
-        self.assertEqual(el.get('data-handoff-space-character'),'1.15')
+        self.assertEqual(el.get('data-compio-space-character'),'1.15')
         self.assertTrue(any(t.get('font-weight')=='bold' for t in el.iter(SVG+'tspan')))
         self.assertEqual(el.get('letter-spacing'),'0.15')
         self.assertEqual(el.get(INK+'label'),'Title')

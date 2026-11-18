@@ -1,0 +1,18 @@
+{
+  "source": "/home/simon/.config/blender/5.3/scripts/addons/bluik_plus",
+  "target": "/tmp/oca-clean-delivery/runtime/bluik_plus",
+  "changes": {
+    "dublf/image.py": {
+      "sha256": "c2eda191bb8c43ca005257ee95930c0dbcfb56ba954d8bfde6e9b4366598e14e",
+      "patch": "--- a/dublf/image.py\n+++ b/dublf/image.py\n@@ -1,7 +1,10 @@\n import numpy as np\n import math\n import gpu\n-import bgl\n+try:\n+    import bgl\n+except ImportError:\n+    bgl = None\n import bpy\n from gpu_extras.batch import batch_for_shader\n \n@@ -17,6 +20,11 @@\n \n \n def gl_copy(image):\n+    if bgl is None:\n+        width,height=image.size\n+        values=np.empty(width*height*4,np.float32)\n+        image.pixels.foreach_get(values)\n+        return values.reshape(height,width,4)\n     if image.gl_load():\n         raise Exception()\n \n"
+    },
+    "oca.py": {
+      "sha256": "d090703cfb9f8057f62b7476c8322f9f1496bb5979c4023449163b3352f2a6aa",
+      "patch": "--- a/oca.py\n+++ b/oca.py\n@@ -526,7 +526,9 @@\n         try:\n             self.import_oca(context)\n         except Exception as exc:\n-            print(f\"ERROR during OCA import: {exc}\")\n+            context.preferences.edit.use_enter_edit_mode = editmode\n+            self.report({\"ERROR\"}, str(exc))\n+            return {\"CANCELLED\"}\n \n         if self.render_settings in {\"REALTIME\", \"RENDER\"}:\n             from . import eevee_optimise  # local import to avoid circular init issues\n@@ -598,6 +600,9 @@\n         _audit_imported_layers(getattr(self, \"_imported_layer_objects\", []), label=\"FINAL\")\n \n     def import_oca(self, context):\n+        from . import oca13_import\n+        if oca13_import.try_import(self,context):\n+            return\n         resolved_clones = set()\n         self.original_objects = {}\n         self.clone_queue = []\n"
+    },
+    "preferences.py": {
+      "sha256": "c38254888dfc52222984698a436848fb39c334ee9366f92f71013d410e380c78",
+      "patch": "--- a/preferences.py\n+++ b/preferences.py\n@@ -2,7 +2,7 @@\n \n import bpy  # pylint: disable=import-error\n \n-from bluik import dublf  # pylint: disable=import-error\n+from . import dublf  # pylint: disable=import-error\n \n \n class BLUIK_OpenURL(dublf.ops.OpenURL):\n"
+    }
+  }
+}

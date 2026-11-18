@@ -1,4 +1,4 @@
-"""Offline Pillow wheel bootstrap for handoff.
+"""Offline Pillow wheel bootstrap for HandOff.
 
 Blender classic add-ons do not automatically install wheel dependencies.
 Pillow contains native binaries and therefore needs to be extracted,
@@ -47,16 +47,8 @@ def select_wheel(python_tag=None, system=None, machine=None):
         elif system == 'darwin' and 'macosx' in name and name.endswith('_' + marker + '.whl'):
             candidates.append(p)
     if not candidates:
-        # Install archives include every pinned wheel. A source-only ZIP or a
-        # second/older Blender add-on installation has no compatible wheel.
-        available = sorted(p.name for p in WHEELS.glob('*.whl'))
-        reason = ('Pillow wheels not installed' if not available else
-                  'No matching Pillow wheel in the installed add-on')
-        raise RuntimeError(
-            f'{reason} at {WHEELS} (platform: {system}/{machine}; Python {python_tag}). '
-            'Install the full HandOff release or test-build ZIP, NOT the GitHub source ZIP; '
-            'disable/remove duplicate handoff installations and restart Blender. '
-            'Installed wheels: ' + (', '.join(available) if available else '(none)'))
+        raise RuntimeError('No bundled Pillow wheel compatible with %s %s Python %s. Available: %s' % (
+            system, machine, python_tag, ', '.join(p.name for p in WHEELS.glob('*.whl'))))
     return sorted(candidates)[-1]
 
 

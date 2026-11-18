@@ -5,15 +5,6 @@ first, so we reverse each sibling list without changing the saved stack.
 """
 
 try:
-    from .svg_compat import normalize_metadata
-except ImportError:
-    try:
-        from svg_compat import normalize_metadata
-    except ImportError:
-        def normalize_metadata(root):
-            return root
-
-try:
     from .branding import LOG_PREFIX
 except ImportError:
     from branding import LOG_PREFIX
@@ -122,7 +113,7 @@ def _png_bytes_for(item, path, width, height):
 
 def _can_unwrap(element):
     """Removing a repeated label must not remove opacity or other styling."""
-    metadata = {'id', _ink('label'), 'data-handoff-object', 'data-handoff-layer', 'opacity'}
+    metadata = {'id', _ink('label'), 'data-compio-object', 'data-compio-layer', 'opacity'}
     return (set(element.attrib) <= metadata and float(element.get('opacity', '1')) == 1.0)
 
 
@@ -179,14 +170,14 @@ def write_svg_document(job, inputs, *, logger=print):
     if root_mode == 'NAMED':
         root_name = str(job.get('svg_root_name') or '').strip() or Path(job['dest']).stem
         root_target = ET.SubElement(root, _tag('g'), {
-            'id': 'handoff-root', _ink('label'): root_name,
+            'id': 'compio-root', _ink('label'): root_name,
         })
 
     def write_children(children, target, promoted=None):
         for node in reversed(children):
             if node['kind'] == 'group':
                 group = ET.SubElement(target, _tag('g'), {
-                    'id':'handoff-group-' + str(counters['groups']),
+                    'id':'compio-group-' + str(counters['groups']),
                     _ink('groupmode'):'layer',
                     _ink('label'):display_label(node['name'], 'group')})
                 # Inkscape displays highlight colours on its layer entries.
@@ -205,7 +196,7 @@ def write_svg_document(job, inputs, *, logger=print):
             label = display_label(node['name'], 'layer')
             entry = item.get('entry', {})
             layer = ET.SubElement(target, _tag('g'), {
-                'id':'handoff-layer-' + str(counters['layers']),
+                'id':'compio-layer-' + str(counters['layers']),
                 _ink('label'):label})
             for key in ('source_identity','source_view_layer','collection_path'):
                 if entry.get(key):layer.set('data-asset-'+key.replace('_','-'),str(entry[key]))
@@ -224,7 +215,6 @@ def write_svg_document(job, inputs, *, logger=print):
                 use_vector = resolve_hybrid_source(source, depth=depth, logger=logger)
             if use_vector:
                 inner = ET.parse(source).getroot()
-                normalize_metadata(inner)
                 if inner.tag != _tag('svg'):
                     raise ValueError('Vector source is not an SVG document: ' + str(source))
                 if inner.get('viewBox') != f'0 0 {width} {height}':
@@ -239,19 +229,19 @@ def write_svg_document(job, inputs, *, logger=print):
                     if not component or 'ungroup' in tags(component):continue
                     if len(svg_children)!=1:break
                     wrapper=svg_children[0]
-                    if (not wrapper.get('data-handoff-collection') or
+                    if (not wrapper.get('data-compio-collection') or
                             wrapper.get(_ink('label'))!=strip_tags(component) or
                             any(wrapper.get(k) for k in ('style','opacity','transform','display','filter','mask','clip-path'))):break
                     svg_children=list(wrapper)
                 # When the single GP object and its only internal layer both
                 # repeat the destination name, omit these redundant wrappers.
                 # Keep genuinely distinct layers and their source order.
-                for marker in ('data-handoff-object', 'data-handoff-layer'):
+                for marker in ('data-compio-object', 'data-compio-layer'):
                     if len(svg_children) != 1 or svg_children[0].tag != _tag('g'):
                         break
                     wrapper = svg_children[0]
                     if (wrapper.get(marker, '').casefold() != label.casefold() or
-                            (wrapper.get('data-handoff-layer', label).casefold() != label.casefold()) or
+                            (wrapper.get('data-compio-layer', label).casefold() != label.casefold()) or
                             not _can_unwrap(wrapper)):
                         break
                     svg_children = list(wrapper)
@@ -266,15 +256,10 @@ def write_svg_document(job, inputs, *, logger=print):
             else:
                 src = item.get('source')
                 data = _png_bytes_for(item, src, width, height)
-                image_x = image_y = 0
-                image_width, image_height = width, height
-                if job.get('trim_empty_pixels', True):
-                    from raster_trim import crop_png_bytes
-                    data, image_x, image_y, image_width, image_height = crop_png_bytes(data)
                 image = ET.SubElement(layer, _tag('image'), {
-                    'id':'handoff-image-' + str(counters['layers'] - 1),
-                    _ink('label'):label, 'x':str(image_x), 'y':str(image_y),
-                    'width':str(image_width), 'height':str(image_height), 'preserveAspectRatio':'none',
+                    'id':'compio-image-' + str(counters['layers'] - 1),
+                    _ink('label'):label, 'x':'0', 'y':'0', 'width':str(width),
+                    'height':str(height), 'preserveAspectRatio':'none',
                     'href':'data:image/png;base64,' + base64.b64encode(data).decode('ascii')})
                 for key,value in layer.attrib.items():
                     if key.startswith('data-asset-'):image.set(key,value)

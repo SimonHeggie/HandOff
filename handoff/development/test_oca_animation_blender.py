@@ -43,7 +43,7 @@ def run():
   source=tree.nodes.new('CompositorNodeRLayers');source.scene=scene;source.layer=view.name
   node.file_output_items.new('RGBA','Parts/'+view.name);tree.links.new(source.outputs['Image'],node.inputs[index])
  for fmt in ('OCA','PSD','SVG'):
-  item=node.blend_artwork_exports.add();item.format=fmt;item.enabled=True;item.depth='8'
+  item=node.blend_artwork_exports.add();item.format=fmt;item.oca_layout='LEGACY';item.enabled=True;item.depth='8'
   item.path=str(output/'exports');item.relative_path=False;item.use_groups=True
  manifests=[]
  with patch.object(addon,'launch_worker',side_effect=lambda scene,path,*a,**kw:manifests.append(Path(path))):
@@ -64,15 +64,21 @@ def run():
   assert layer['animated'] and [f['frameNumber'] for f in layer['frames']]==[1,2,3]
   assert all(f['duration']==1 for f in layer['frames'])
   images=[np.asarray(Image.open(Path(job['dest']).parent/f['fileName'])) for f in layer['frames']]
-  assert all(im.shape==(48,48,4) and im[...,3].max()>0 for im in images)
+  for cel,im in zip(layer['frames'],images):
+   captured=next(f for f in job['oca_frames'] if f['frame']==cel['frameNumber'])
+   entry=next(e for e in captured['manifest'] if e['name']==layer['meta']['handoff']['sourceName'])
+   cached=next(p for p in Path(captured['dir']).glob(entry['slug']+'*.png') if p.stem==entry['slug']+str(cel['frameNumber']).zfill(4))
+   box=Image.open(cached).getchannel('A').getbbox()
+   assert im.shape==(box[3]-box[1]+2,box[2]-box[0]+2,4) and im[...,3].max()>0
+   assert cel['position']==[(box[0]+box[2])/2,(box[1]+box[3])/2]
   assert not np.array_equal(images[0],images[-1])
  assert PSDImage.open(output/'exports/Sequence.psd').size==(48,48)
  from xml.etree import ElementTree as E
  assert E.parse(output/'exports/Sequence.svg').getroot().tag.endswith('svg')
  assert not addon.SESSIONS
+ addon.unregister()
  print('OCA_ANIMATION_NATIVE_PASS: 3 frames, 2 layered sequences, assets/alpha/fps/hierarchy, final-frame PSD/SVG',flush=True)
 
 if __name__=='__main__':
  try:run()
- except BaseException:traceback.print_exc();sys.stdout.flush();sys.stderr.flush();os._exit(1)
- sys.stdout.flush();sys.stderr.flush();os._exit(0)
+ except BaseException:traceback.print_exc();sys.stdout.flush();sys.stderr.flush();raise

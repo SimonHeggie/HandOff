@@ -30,7 +30,7 @@ def prepare(stroke):
 
 
 def markup(stroke, element_id, label):
-    v=_vectors();fmt=v.fmt;p=stroke['pressure'];ident=f'handoff-pressure-{element_id}'
+    v=_vectors();fmt=v.fmt;p=stroke['pressure'];ident=f'compio-pressure-{element_id}'
     defs=[];paint=stroke['stroke'];opacity=stroke.get('stroke_opacity',1)
     gradient=p.get('gradient')
     if gradient:
@@ -43,19 +43,19 @@ def markup(stroke, element_id, label):
         paint=f'url(#{ident}-alpha)'
     centre=v.svg_path(stroke['points'],stroke['type'],False)
     metadata=escape(json.dumps({k:p[k] for k in ('widths','opacities') if k in p}),quote=True)
-    attrs=(f'id="{ident}" inkscape:label="{label}" data-handoff-role="outline" '
-           f'data-handoff-pressure="{metadata}"')
+    attrs=(f'id="{ident}" inkscape:label="{label}" data-compio-role="outline" '
+           f'data-compio-pressure="{metadata}"')
     if p.get('widths'):
         offsets=' | '.join(f'{i},{fmt(w/2)}' for i,w in enumerate(p['widths']))
         defs.append(f'<inkscape:path-effect id="{ident}-width" effect="powerstroke" is_visible="true" lpeversion="1" '
                     f'offset_points="{offsets}" sort_points="true" not_jump="false" interpolator_type="Linear" '
                     'interpolator_beta="0" start_linecap_type="round" end_linecap_type="round" '
                     'linejoin_type="round" miter_limit="4" scale_width="1"/>')
-        path=(f'<path {attrs} data-handoff-geometry="powerstroke" inkscape:original-d="{escape(centre,quote=True)}" '
+        path=(f'<path {attrs} data-compio-geometry="powerstroke" inkscape:original-d="{escape(centre,quote=True)}" '
               f'inkscape:path-effect="#{ident}-width" d="{escape(v.svg_path(p["outline"],"POLY",True),quote=True)}" '
               f'fill="{paint}" fill-opacity="{fmt(opacity)}" stroke="none"/>')
     else:
-        path=(f'<path {attrs} data-handoff-geometry="opacity-gradient" d="{escape(centre,quote=True)}" '
+        path=(f'<path {attrs} data-compio-geometry="opacity-gradient" d="{escape(centre,quote=True)}" '
               f'fill="none" stroke="{paint}" stroke-opacity="{fmt(opacity)}" '
               f'stroke-width="{fmt(stroke["width"])}" stroke-linecap="round" stroke-linejoin="round"/>')
     return '<defs>'+''.join(defs)+'</defs>'+path
