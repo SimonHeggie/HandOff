@@ -35,8 +35,6 @@ For OCA animation, **Render Animation** exports the frame range as one timed doc
 4. Select the node and open the **Node** sidebar → **HandOff - Additional Exports**. Add and configure your output destinations.
 5. Run **Check Export Status**, then use **F12** for a still or **Ctrl+F12** for an OCA animation sequence.
 
-When upgrading from the older Comp-IO / `blend_psd_tools` add-on, disable and uninstall the old add-on first to avoid duplicate render handlers. Back up important `.blend` files before upgrading.
-
 ## Current limitations
 
 - HandOff does **not** yet transfer Blender armatures, bone weights or general object-transform animation into editable 2D rigs. OCA animation is currently built from artwork exposures and supported reference metadata.
