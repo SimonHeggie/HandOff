@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: '3.13'
       - name: Install test dependencies
-        run: python -m pip install --disable-pip-version-check numpy pillow==12.0.0 attrs scipy
+        run: python -m pip install --disable-pip-version-check numpy pillow==12.0.0 attrs scipy fonttools
       - name: Download only hash-verified Pillow distribution wheels
         run: |
           python - <<'PY'
@@ -58,13 +58,34 @@ jobs:
         run: |
           mkdir -p handoff/pillow
           cp .release-wheels/*.whl handoff/pillow/
-      - name: Run core OCA, PSD, SVG and Pillow regression tests
+      - name: Rebuild and verify Blender Bfont companion for clean install
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,urllib.request
+          from pathlib import Path
+          info=json.loads(Path('handoff/vendor/fonts/Bfont-Regular.json').read_text())
+          url='https://raw.githubusercontent.com/blender/blender/main/release/datafiles/bfont.pfb'
+          with urllib.request.urlopen(url,timeout=40) as response:
+              b=response.read()
+          if hashlib.sha256(b).hexdigest()!=info['source_sha256']:
+              raise RuntimeError('Blender Bfont source hash mismatch')
+          Path('.release-wheels/bfont.pfb').write_bytes(b)
+          PY
+          python handoff/development/build_bfont_otf.py .release-wheels/bfont.pfb handoff/vendor/fonts/Bfont-Regular.otf
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          p=Path('handoff/vendor/fonts/Bfont-Regular.otf')
+          expected=json.loads(Path('handoff/vendor/fonts/Bfont-Regular.json').read_text())['otf_sha256']
+          assert hashlib.sha256(p.read_bytes()).hexdigest()==expected
+          print('Bfont companion verified')
+          PY
+      - name: Run full Blender-independent HandOff unit suite
         env:
           PYTHONPATH: handoff:handoff/vendor
-        run: |
-          python -m unittest -q \
-            test_pillow_loader test_oca_sequence test_color_management \
-            test_handoff_hierarchy test_svg_export
+        run: python -m unittest discover -q -s handoff -p 'test_*.py'
       - name: Rebuild installable add-on ZIP
         run: |
           python scripts/build_install_zip.py --wheels-from .release-wheels \
