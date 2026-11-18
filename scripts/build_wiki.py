@@ -19,23 +19,28 @@ from markdownify import markdownify as md
 WIKI = 'https://github.com/SimonHeggie/HandOff/wiki'
 REPOSITORY = 'https://github.com/SimonHeggie/HandOff'
 PAGES = [
-    ('MANUAL.html', 'Getting-started', 'Getting started'),
-    ('groups.html', 'Collection-hierarchy', 'Collection hierarchy'),
-    ('psd.html', 'PSD-and-PSB-colour', 'PSD / PSB colour'),
-    ('vectors.html', 'SVG-and-vector-artwork', 'SVG / Vector Artwork'),
-    ('tags.html', 'Tag-compatibility', 'Tag compatibility'),
-    ('tags-operations.html', 'Group-and-export-directives', 'Group and export directives'),
-    ('tags-spine.html', 'Spine-directives', 'Spine directives'),
-    ('generator.html', 'Photoshop-Generator', 'Photoshop Generator'),
-    ('exr-suffixes.html', 'EXR-suffixes-and-blending', 'EXR-style suffixes and blending'),
+    ('MANUAL.html', 'Getting-started', 'Your first export'),
+    ('formats.html', 'Choose-a-format', 'Choose a format'),
+    ('groups.html', 'Collection-hierarchy', 'Collections and layers'),
+    ('tags-operations.html', 'Group-and-export-directives', 'Export directives'),
+    ('exr-suffixes.html', 'EXR-suffixes-and-blending', 'Layer blend modes'),
+    ('oca.html', 'OCA-export', 'Animation (.OCA)'),
+    ('vectors.html', 'SVG-and-vector-artwork', 'Vector artwork (.SVG)'),
+    ('fonts.html', 'Fonts', 'Deliver fonts'),
+    ('recovery.html', 'Recovery-and-troubleshooting', 'Retry and troubleshooting'),
+    ('psd.html', 'PSD-and-PSB-colour', 'PSD/PSB colour and precision'),
+    ('tags.html', 'Tag-compatibility', 'Naming compatibility'),
+    ('tags-spine.html', 'Spine-directives', 'Spine naming reference'),
+    ('generator.html', 'Photoshop-Generator', 'Photoshop Generator names'),
     ('openexr.html', 'OpenEXR-channels', 'OpenEXR channels'),
     ('sources.html', 'Sources-and-credits', 'Sources and credits'),
 ]
+
 REFERENCE_PAGES = [
     ('LAYER_TAGS.md', 'Layer-tag-reference', 'Layer-tag reference'),
     ('BLEND_MODES.md', 'Blend-mode-reference', 'Blend-mode reference'),
 ]
-OPTIONAL_PAGES = [('oca.html', 'OCA-export', 'OCA export')]
+OPTIONAL_PAGES = [('formats.html', 'Choose-a-format', 'Choose a format'), ('fonts.html', 'Fonts', 'Deliver fonts'), ('recovery.html', 'Recovery-and-troubleshooting', 'Retry and troubleshooting')]
 OPTIONAL_REFERENCE_PAGES = [('OCA_CONTROLS.md', 'OCA-controls', 'OCA controls'), ('OCA_VECTORS.md', 'OCA-vector-artwork', 'OCA vector artwork'), ('OCA_AUTHORING.md', 'OCA-authoring', 'OCA authoring')]
 LINKS = {name:slug for name,slug,_ in PAGES + REFERENCE_PAGES + OPTIONAL_PAGES + OPTIONAL_REFERENCE_PAGES}
 
@@ -63,8 +68,15 @@ def html_to_wiki(source: Path, title: str) -> str:
         raise ValueError(f'{source}: missing main element')
     for element in main.select('nav, footer, .eyebrow, h1'):
         element.decompose()
-    for a in main.find_all('a',href=True):
+    for a in main.find_all('a', href=True):
         a['href'] = converted_href(a['href'])
+    for picture in main.find_all('img', src=True):
+        source_url = picture['src']
+        parsed = urlsplit(source_url)
+        if not parsed.scheme and not parsed.netloc and not source_url.startswith('//'):
+            relative = parsed.path.lstrip('/')
+            if relative.startswith('images/') and '..' not in Path(relative).parts:
+                picture['src'] = f'https://raw.githubusercontent.com/SimonHeggie/HandOff/main/handoff/manual/{relative}'
     # Retain all explicit HTML section/heading IDs, including those referenced
     # from other chapters. markdownify drops empty anchor elements, so insert
     # protected plaintext markers and restore them after conversion.
@@ -85,7 +97,7 @@ def html_to_wiki(source: Path, title: str) -> str:
 
 
 def render(source_dir: Path, output_dir: Path) -> None:
-    pages = PAGES + [row for row in OPTIONAL_PAGES if (source_dir / row[0]).is_file()]
+    pages = [row for row in PAGES if (source_dir / row[0]).is_file()]
     reference_pages = REFERENCE_PAGES + [row for row in OPTIONAL_REFERENCE_PAGES if (source_dir / row[0]).is_file()]
     output_dir.mkdir(parents=True, exist_ok=True)
     home = ('# HandOff User Manual\n\n'
