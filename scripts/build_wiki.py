@@ -61,12 +61,15 @@ def converted_href(value: str) -> str:
     return f'{REPOSITORY}/blob/main/handoff/manual/{parts.path}' + (f'#{parts.fragment}' if parts.fragment else '')
 
 
-def html_to_wiki(source: Path, title: str) -> str:
+def html_to_wiki(source: Path) -> str:
     html = BeautifulSoup(source.read_text(encoding='utf-8'), 'html.parser')
     main = html.find('main')
     if main is None:
         raise ValueError(f'{source}: missing main element')
-    for element in main.select('nav, footer, .eyebrow, h1'):
+    # The GitHub Wiki provides its own page title and navigation sidebar.
+    # Remove the corresponding offline-manual chrome, including the mobile
+    # chapter picker, while retaining content details, tables and figures.
+    for element in main.select('nav, footer, h1, .eyebrow, .mobile-nav, .page-turn'):
         element.decompose()
     for a in main.find_all('a', href=True):
         a['href'] = converted_href(a['href'])
@@ -90,24 +93,21 @@ def html_to_wiki(source: Path, title: str) -> str:
     for marker, anchorid in markers.items():
         result = result.replace(marker, f'<a id="{anchorid}"></a>')
     result = re.sub(r'\n{4,}', '\n\n\n', result).strip()
-    return f'# {title}\n\n{result}\n'
+    if re.search(r'(?m)^#\\s+', result) or 'Choose a chapter' in result:
+        raise ValueError(f'{source}: offline title or chapter menu leaked into Wiki content')
+    return result + '\n'
 
 
 def render(source_dir: Path, output_dir: Path) -> None:
     pages = [row for row in PAGES if (source_dir / row[0]).is_file()]
     reference_pages = REFERENCE_PAGES + [row for row in OPTIONAL_REFERENCE_PAGES if (source_dir / row[0]).is_file()]
     output_dir.mkdir(parents=True, exist_ok=True)
-    home = ('# HandOff User Manual\n\n'
-            '**Hit render, go home.**\n\n'
+    # Page and reference lists already appear in the Wiki's right sidebar.
+    home = ('**Hit render, go home.**\n\n'
             'Documentation for exporting layered artwork, vectors, animation and other assets from Blender.\n\n'
-            'Start with **[Getting started](Getting-started)**, or choose a chapter below.\n\n'
-            '## Manual chapters\n\n')
-    for _,slug,label in pages:
-        home += f'- [{label}]({slug})\n'
-    home += '\n## Reference tables\n\n'
-    for _,slug,label in reference_pages:
-        home += f'- [{label}]({slug})\n'
-    home += ('\n## Downloads and support\n\n'
+            'Start with **[Your first export](Getting-started)**.\n\n'
+            '## Downloads and support\n\n')
+    home += (
              f'- [Current HandOff releases]({REPOSITORY}/releases)\n'
              f'- [Historical release notes]({REPOSITORY}/blob/main/docs/HISTORICAL_GITHUB_RELEASE_NOTES.md)\n'
              f'- [Repository and project overview]({REPOSITORY})\n'
@@ -118,13 +118,15 @@ def render(source_dir: Path, output_dir: Path) -> None:
         page=source_dir/name
         if not page.is_file():
             raise FileNotFoundError(page)
-        (output_dir/f'{slug}.md').write_text(html_to_wiki(page,title), encoding='utf-8')
+        (output_dir/f'{slug}.md').write_text(html_to_wiki(page), encoding='utf-8')
 
     for name,slug,title in reference_pages:
         page=source_dir/name
         if not page.is_file():
             raise FileNotFoundError(page)
         original=page.read_text(encoding='utf-8')
+        # The Wiki already shows each reference page title above its content.
+        original=re.sub(r'\\A(?:\\ufeff)?[ \\t]*# +[^\\n]*\\n(?:[ \\t]*\\n)?', '', original, count=1)
         # Wiki pages should not link to relative Git files that do not exist in the wiki.
         original=re.sub(r'\]\(([^)#]+\.(?:md|html))(#[^)]+)?\)', lambda m: ']('+converted_href(m[1]+(m[2] or ''))+')', original)
         (output_dir/f'{slug}.md').write_text(original, encoding='utf-8')
