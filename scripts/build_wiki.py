@@ -93,7 +93,7 @@ def html_to_wiki(source: Path) -> str:
     for marker, anchorid in markers.items():
         result = result.replace(marker, f'<a id="{anchorid}"></a>')
     result = re.sub(r'\n{4,}', '\n\n\n', result).strip()
-    if re.search(r'(?m)^#\\s+', result) or 'Choose a chapter' in result:
+    if re.search(r'(?m)^#\s+', result) or 'Choose a chapter' in result:
         raise ValueError(f'{source}: offline title or chapter menu leaked into Wiki content')
     return result + '\n'
 
@@ -126,7 +126,7 @@ def render(source_dir: Path, output_dir: Path) -> None:
             raise FileNotFoundError(page)
         original=page.read_text(encoding='utf-8')
         # The Wiki already shows each reference page title above its content.
-        original=re.sub(r'\\A(?:\\ufeff)?[ \\t]*# +[^\\n]*\\n(?:[ \\t]*\\n)?', '', original, count=1)
+        original=re.sub(r'\A(?:\ufeff)?[ \t]*# +[^\n]*\n(?:[ \t]*\n)?', '', original, count=1)
         # Wiki pages should not link to relative Git files that do not exist in the wiki.
         original=re.sub(r'\]\(([^)#]+\.(?:md|html))(#[^)]+)?\)', lambda m: ']('+converted_href(m[1]+(m[2] or ''))+')', original)
         (output_dir/f'{slug}.md').write_text(original, encoding='utf-8')
